@@ -15,9 +15,11 @@ So is there an alternative? Of course there is, there are many alternatives. Wha
 
 Below is a high level diagram of how the architecture will look. Starting at the user interface all interaction will be through a services layer. This could easily be WebApi, MVC controllers, a stand Windows service or any other endpoint that you choose. In our case we will use a service DLL and our "UI" will actually be a "Integration Test" project. The service will have two stacks to interact with for data access. 
 
+![High Level CQRS Diagram](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/CQRS_Diagram.png?raw=true "High Level CQRS Diagram")
+
 The first is the *Query Stack* which will be used for pulling data out of the data store, which in our case will be a SQL Server database. The query stack will house the ReadModel which will leverage the *Stored Procedure Framework* (known as SprocF in this blog post) to return light weight DTOs to the service.
 
 The second stack is the *Command Stack* which will contain any Domain objects or Domain logic that should be applied to the objects and the Domain Objects will be contained in a repository. Database access will be leveraged though *Entity Framework* (known as EF in this blog post). Lastly the Command Stack will contain the commands which the service will use to manipulate the data within the database via the Domain and EF.
 
-![High Level CQRS Diagram](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/CQRS_Diagram.png?raw=true "High Level CQRS Diagram")
+
 
