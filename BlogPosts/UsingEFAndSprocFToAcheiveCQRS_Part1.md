@@ -19,5 +19,5 @@ The first is the *Query Stack* which will be used for pulling data out of the da
 
 The second stack is the *Command Stack* which will contain any Domain objects or Domain logic that should be applied to the objects and the Domain Objects will be contained in a repository. Database access will be leveraged though *Entity Framework* (known as EF in this blog post). Lastly the Command Stack will contain the commands which the service will use to manipulate the data within the database via the Domain and EF.
 
-![High Level CQRS Diagram](/CQRS_Diagram.png "High Level CQRS Diagram")
+![High Level CQRS Diagram](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/CQRS_Diagram.png?raw=true "High Level CQRS Diagram")
 
