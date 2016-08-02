@@ -163,3 +163,4 @@ We should see three RecordSets, like below;
 
 All going well we shall call this a day and in the next article move on to the ReadModel and pull this data from the database using the **Stored Procedure framework**.
 
+This post and all corresponding code and data can be found on my GitHub project - [https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS)
