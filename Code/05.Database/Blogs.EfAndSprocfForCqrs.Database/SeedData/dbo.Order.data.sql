@@ -1,0 +1,1 @@
+﻿INSERT INTO [dbo].[Order] ([Id], [CustomerId], [CustomerOrderNumber], [CreatedOnTimeStamp]) VALUES (N'4a61a22a-bade-d780-bbfa-be19c7746d87', N'17e3a22e-07e5-4ab2-8e62-1b15f9916909', N'0000001', N'2016-01-02 11:08:34')

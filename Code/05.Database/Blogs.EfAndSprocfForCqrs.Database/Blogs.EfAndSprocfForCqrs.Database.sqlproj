@@ -8,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{5d518781-bbaa-4780-826f-176ec5fd65b8}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql120DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -57,5 +57,28 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
+    <Folder Include="SchemaComparisons" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="PostDeploymentScripts" />
+    <Folder Include="SeedData" />
+    <Folder Include="DatabasePublishProfiles" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\ProductOrdered.sql" />
+    <Build Include="dbo\Tables\Product.sql" />
+    <Build Include="dbo\Tables\Order.sql" />
+    <Build Include="dbo\Tables\Customer.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="PostDeploymentScripts\Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SeedData\dbo.Customer.data.sql" />
+    <None Include="SeedData\dbo.Product.data.sql" />
+    <None Include="SeedData\dbo.Order.data.sql" />
+    <None Include="SeedData\dbo.ProductOrdered.data.sql" />
+    <None Include="SchemaComparisons\LocalDbV11_0_SchemaCompare.scmp" />
+    <None Include="DatabasePublishProfiles\Blogs.EfAndSprocfForCqrs.Database.v11.0.publish.xml" />
   </ItemGroup>
 </Project>

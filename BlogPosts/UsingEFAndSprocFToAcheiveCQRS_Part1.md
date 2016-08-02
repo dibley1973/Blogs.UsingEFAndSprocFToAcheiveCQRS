@@ -49,8 +49,48 @@ In the Query Stack I will create a C# *Class Library* read model called "Blogs.E
 In the Command Stack I will create a C# *Class Library* read model called "Blogs.EfAndSprocfForCqrs.DomainModel". Normally I might separate The domain model, domain services and repository out into separate DLLs. I would also likely use interfaces to reduce coupling and promote testability. But as that is not what this post is about I'll try and keep it a little more simple. 
 
 ### Database
-Wee will create a database project "Blogs.EfAndSprocfForCqrs.Database" to hold our schema and seeding data.
+We will create a database project "Blogs.EfAndSprocfForCqrs.Database" to hold our schema and seeding data.
+
+### Full Solution Set-up
+So the full solution set-up can be see in the image below:
+![Solution Set-up](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/SolutionExplorer_01.png?raw=true "Solution Set-up")
 
 ## Data Setup
-So now lets take a look at the data we want to set up. 
+So now lets take a look at the data we want to set up.  We are going to be concentrating on three entities; "Order", "Product", "Customer" with a relationships that allows each single *customer* to have many "orders" and each single "Order" to have many "Products". We will need some addition linking tables like the *ProductOrdered* table which identifies a product which is on an order.
 
+![Order Database Entities](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/OrderDatabaseEntities_01.png?raw=true "Order Database Entities")
+
+Using the "Script.PostDeployment.sql" below we will we will seed the tables with the data that follows.
+
+:r "..\SeedData\dbo.Product.data.sql"
+:r "..\SeedData\dbo.Customer.data.sql"
+:r "..\SeedData\dbo.Order.data.sql"
+:r "..\SeedData\dbo.ProductOrdered.data.sql"
+
+### dbo.Product
+
+    SET IDENTITY_INSERT [dbo].[Product] ON
+    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (2, N'compressor-mac-2hp', N'2HP MAC Tools Compressor', N'Super dandy 2HP  portable compressor by MAC Tools ', N'2015-11-23 16:00:23')
+    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (5, N'snapon-ratchet-ring-metric-10-21', N'Snap-On Metric Ratchet Ring Set 10-21mm', N'Snap-On Metric Ratchet set 10mm - 21mm', N'2015-11-24 00:00:00')
+    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (7, N'snap-on-ratchet-screwdriver-red', N'Snap-On Ratchet Screwdriver in Red', N'Snap-On Ratchet Screwdriver in Red with six bits included', N'2015-11-24 01:01:24')
+    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (8, N'usmash-4lb-hammer', N'U-Smash 4lb lump hammer', N'U-Smash 4lb lump hammer', N'2015-11-25 16:00:35')
+    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (9, N'pry-master-prybar', N'Pri-Master 24" Pry-Bar', N'Pri-Master 24" Pry-Bar with plastic ergonmoic handle', N'2015-11-26 17:00:02')
+    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (10, N'snap-on-6-inch-slip-plyers', N'Snap-On 6 Inch Slip Plyers', N'Snap-On 6 Inch Slip Plyers, ideal for removing brrake spring clips', N'2015-12-02 09:33:22')
+    SET IDENTITY_INSERT [dbo].[Product] OFF
+
+### dbo.Customer
+
+    INSERT INTO [dbo].[Customer] ([Id], [Name], [RegisteredDate], [Active]) VALUES (N'17e3a22e-07e5-4ab2-8e62-1b15f9916909', N'Mike Finnegan', N'1961-01-19', 1)
+    INSERT INTO [dbo].[Customer] ([Id], [Name], [RegisteredDate], [Active]) VALUES (N'baded780-bbfa-4a61-a22a-7746d87be19c', N'David Frieburger', N'1969-09-26', 1)
+    
+### dbo.Order
+
+    INSERT INTO [dbo].[Order] ([Id], [CustomerId], [CustomerOrderNumber], [CreatedOnTimeStamp]) VALUES (N'4a61a22a-bade-d780-bbfa-be19c7746d87',    N'17e3a22e-07e5-4ab2-8e62-1b15f9916909', N'0000001', N'2016-01-02 11:08:34')
+
+### dbo.ProductOrdered
+
+    SET IDENTITY_INSERT [dbo].[ProductOrdered] ON
+    INSERT INTO [dbo].[ProductOrdered] ([Id], [OrderId], [ProductId], [PurchasePrice]) VALUES (1, N'4a61a22a-bade-d780-bbfa-be19c7746d87', 5, CAST(102.0000 AS Money))
+    INSERT INTO [dbo].[ProductOrdered] ([Id], [OrderId], [ProductId], [PurchasePrice]) VALUES (2, N'4a61a22a-bade-d780-bbfa-be19c7746d87', 7, CAST(75.0000 AS Money))
+    INSERT INTO [dbo].[ProductOrdered] ([Id], [OrderId], [ProductId], [PurchasePrice]) VALUES (3, N'4a61a22a-bade-d780-bbfa-be19c7746d87', 9, CAST(25.0000 AS Money))
+    SET IDENTITY_INSERT [dbo].[ProductOrdered] OFF

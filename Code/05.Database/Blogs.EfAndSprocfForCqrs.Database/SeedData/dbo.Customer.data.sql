@@ -1,0 +1,2 @@
+﻿INSERT INTO [dbo].[Customer] ([Id], [Name], [RegisteredDate], [Active]) VALUES (N'17e3a22e-07e5-4ab2-8e62-1b15f9916909', N'Mike Finnegan', N'1961-01-19', 1)
+INSERT INTO [dbo].[Customer] ([Id], [Name], [RegisteredDate], [Active]) VALUES (N'baded780-bbfa-4a61-a22a-7746d87be19c', N'David Frieburger', N'1969-09-26', 1)
