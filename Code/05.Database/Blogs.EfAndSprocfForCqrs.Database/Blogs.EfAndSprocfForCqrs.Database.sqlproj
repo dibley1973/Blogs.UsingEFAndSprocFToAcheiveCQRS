@@ -63,12 +63,14 @@
     <Folder Include="PostDeploymentScripts" />
     <Folder Include="SeedData" />
     <Folder Include="DatabasePublishProfiles" />
+    <Folder Include="dbo\Stored Procedures\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\ProductOrdered.sql" />
     <Build Include="dbo\Tables\Product.sql" />
     <Build Include="dbo\Tables\Order.sql" />
     <Build Include="dbo\Tables\Customer.sql" />
+    <Build Include="dbo\Stored Procedures\GetOrderDetailsForOrderId.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeploymentScripts\Script.PostDeployment.sql" />

@@ -53,19 +53,20 @@ We will create a database project "Blogs.EfAndSprocfForCqrs.Database" to hold ou
 
 ### Full Solution Set-up
 So the full solution set-up can be see in the image below:
+
 ![Solution Set-up](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/SolutionExplorer_01.png?raw=true "Solution Set-up")
 
 ## Data Setup
-So now lets take a look at the data we want to set up.  We are going to be concentrating on three entities; "Order", "Product", "Customer" with a relationships that allows each single *customer* to have many "orders" and each single "Order" to have many "Products". We will need some addition linking tables like the *ProductOrdered* table which identifies a product which is on an order.
+So now lets take a look at the data we want to set up.  We are going to be concentrating on three entities; "Order", "Product", "Customer" with a relationships that allows each single "Customer" to have many "Orders" and each single "Order" to have many "Products". We will need some addition linking tables like the *ProductOrdered* table which identifies a product which is on an order.
 
 ![Order Database Entities](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/OrderDatabaseEntities_01.png?raw=true "Order Database Entities")
 
 Using the "Script.PostDeployment.sql" below we will we will seed the tables with the data that follows.
 
-:r "..\SeedData\dbo.Product.data.sql"
-:r "..\SeedData\dbo.Customer.data.sql"
-:r "..\SeedData\dbo.Order.data.sql"
-:r "..\SeedData\dbo.ProductOrdered.data.sql"
+    :r "..\SeedData\dbo.Product.data.sql"
+    :r "..\SeedData\dbo.Customer.data.sql"
+    :r "..\SeedData\dbo.Order.data.sql"
+    :r "..\SeedData\dbo.ProductOrdered.data.sql"
 
 ### dbo.Product
 
@@ -75,7 +76,7 @@ Using the "Script.PostDeployment.sql" below we will we will seed the tables with
     INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (7, N'snap-on-ratchet-screwdriver-red', N'Snap-On Ratchet Screwdriver in Red', N'Snap-On Ratchet Screwdriver in Red with six bits included', N'2015-11-24 01:01:24')
     INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (8, N'usmash-4lb-hammer', N'U-Smash 4lb lump hammer', N'U-Smash 4lb lump hammer', N'2015-11-25 16:00:35')
     INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (9, N'pry-master-prybar', N'Pri-Master 24" Pry-Bar', N'Pri-Master 24" Pry-Bar with plastic ergonmoic handle', N'2015-11-26 17:00:02')
-    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (10, N'snap-on-6-inch-slip-plyers', N'Snap-On 6 Inch Slip Plyers', N'Snap-On 6 Inch Slip Plyers, ideal for removing brrake spring clips', N'2015-12-02 09:33:22')
+    INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp]) VALUES (10, N'snap-on-6-inch-slip-plyers', N'Snap-On 6 Inch Slip Plyers', N'Snap-On 6 Inch Slip Plyers, ideal for removing brake spring clips', N'2015-12-02 09:33:22')
     SET IDENTITY_INSERT [dbo].[Product] OFF
 
 ### dbo.Customer
@@ -94,3 +95,71 @@ Using the "Script.PostDeployment.sql" below we will we will seed the tables with
     INSERT INTO [dbo].[ProductOrdered] ([Id], [OrderId], [ProductId], [PurchasePrice]) VALUES (2, N'4a61a22a-bade-d780-bbfa-be19c7746d87', 7, CAST(75.0000 AS Money))
     INSERT INTO [dbo].[ProductOrdered] ([Id], [OrderId], [ProductId], [PurchasePrice]) VALUES (3, N'4a61a22a-bade-d780-bbfa-be19c7746d87', 9, CAST(25.0000 AS Money))
     SET IDENTITY_INSERT [dbo].[ProductOrdered] OFF
+    
+## Validate the data is correct
+While we are here lets just validate that the data we have seeded relates correctly. using the "[dbo].[GetOrderDetailsForOrderId]" Stored procedure lets just check we have an "Order", a "Customer", and three "Products" on the order. (We will use this stored procedure later, so it is worth creating now as its value is two-fold.
+
+### [dbo].[GetOrderDetailsForOrderId]
+If you want to see the result just select and run all of the code from the "DECLARE" within the comment block until the just before the END keyword.
+
+    CREATE PROCEDURE [dbo].[GetOrderDetailsForOrderId]
+    (
+        @OrderId uniqueidentifier
+    )
+    AS
+    BEGIN
+        /*  
+        DECLARE @OrderId uniqueidentifier = '4A61A22A-BADE-D780-BBFA-BE19C7746D87';
+        -- */
+
+        /* Order */
+        SELECT      [Id]
+        ,           [CustomerId]
+        ,           [CustomerOrderNumber]
+        ,           [CreatedOnTimeStamp]
+        FROM        [dbo].[Order]
+        WHERE       [Id] = @OrderId;
+
+        /* Customer who ordered */
+        SELECT      @OrderId                [Id]
+        ,           [Name]
+        ,           [RegisteredDate]
+        ,           [Active]
+        FROM        [dbo].[Customer]        [customer]
+        INNER JOIN  [dbo].[Order]           [order]
+                ON  [order].[CustomerId]    = [customer].[Id]
+        WHERE       [order].[Id]            = @OrderId;
+
+        /* Products on the order */
+        SELECT      [ordered].[Id]
+        ,           [ordered].[OrderId]
+        ,           [ordered].[ProductId]
+        ,           [product].[Key]
+        ,           [product].[Name]
+        ,           [product].[Description]
+        ,           [ordered].[PurchasePrice]
+        FROM        [dbo].[ProductOrdered]  [ordered]
+        INNER JOIN  [dbo].[Product]         [product]
+                ON  [product].[Id]          = [ordered].[ProductId]
+        WHERE       [ordered].[OrderId]     = @OrderId;
+    END
+ 
+We should see three RecordSets, like below;
+
+| Id                                  | Name             | RegisteredDate | Active |
+|-------------------------------------|------------------|----------------|--------|
+|17E3A22E-07E5-4AB2-8E62-1B15F9916909 | Mike Finnegan    | 1961-01-19     | 1      |
+|BADED780-BBFA-4A61-A22A-7746D87BE19C | David Frieburger | 1969-09-26     | 1      |
+
+|Id                                   | CustomerId                           | CustomerOrderNumber | CreatedOnTimeStamp      |
+|-------------------------------------|--------------------------------------|---------------------|-------------------------|
+|4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 17E3A22E-07E5-4AB2-8E62-1B15F9916909 | 0000001             | 2016-01-02 11:08:34.000 |
+
+|Id | OrderId                              | ProductId | PurchasePrice |
+|---|--------------------------------------|-----------|---------------|
+|1  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 5         | 102.00        |
+|2  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 7         | 75.00         |
+|3  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 9         | 25.00         |
+
+All going well we shall call this a day and in the next article move on to the ReadModel and pull this data from the database using the **Stored Procedure framework**.
+

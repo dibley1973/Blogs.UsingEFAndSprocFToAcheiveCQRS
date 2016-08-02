@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BlogPosts", "BlogPosts", "{
 	ProjectSection(SolutionItems) = preProject
 		BlogPosts\CQRS_Diagram.png = BlogPosts\CQRS_Diagram.png
 		BlogPosts\CQRS_Diagram.xlsx = BlogPosts\CQRS_Diagram.xlsx
+		BlogPosts\OrderDatabaseEntities_01.png = BlogPosts\OrderDatabaseEntities_01.png
+		BlogPosts\SolutionExplorer_01.png = BlogPosts\SolutionExplorer_01.png
 		BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part1.md = BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part1.md
 	EndProjectSection
 EndProject
