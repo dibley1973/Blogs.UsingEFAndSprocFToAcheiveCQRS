@@ -21,5 +21,36 @@ The first is the *Query Stack* which will be used for pulling data out of the da
 
 The second stack is the *Command Stack* which will contain any Domain objects or Domain logic that should be applied to the objects and the Domain Objects will be contained in a repository. Database access will be leveraged though *Entity Framework* (known as EF in this blog post). Lastly the Command Stack will contain the commands which the service will use to manipulate the data within the database via the Domain and EF.
 
+## Assumptions
+This blog post assumes the reader is competent in C#, and a number of common patterns and practices. 
 
+## Solution Setup
+Before we can start to write any code we will set up the solution to organise the code, so lets set up some solution folders to organise the code. So we will start of with folders for Client, Services, Query Stack, Command Stack and lastly Database.
+
+|
++--Code
+|  +-- 01.Client
+|  +-- 02.Services
+|  +-- 03.QueryStack
+|  +-- 04.CommandStack
+|  +-- 05.Database
+|
+
+### Client
+For the "client" in a further effort to keep things simple, I am just going to create a *Unit Test Project* and use that as an integration test harness for the Service project.
+
+### Services
+For the services I will create a C# *Class Library* called "Blogs.EfAndSprocfForCqrs.Services".
+
+### Query Stack
+In the Query Stack I will create a C# *Class Library* read model called "Blogs.EfAndSprocfForCqrs.ReadModel"
+
+### Command Stack
+In the Command Stack I will create a C# *Class Library* read model called "Blogs.EfAndSprocfForCqrs.DomainModel". Normally I might separate The domain model, domain services and repository out into separate DLLs. I would also likely use interfaces to reduce coupling and promote testability. But as that is not what this post is about I'll try and keep it a little more simple. 
+
+### Database
+Wee will create a database project "Blogs.EfAndSprocfForCqrs.Database" to hold our schema and seeding data.
+
+## Data Setup
+So now lets take a look at the data we want to set up. 
 
