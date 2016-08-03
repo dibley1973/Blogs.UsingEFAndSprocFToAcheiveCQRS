@@ -146,14 +146,16 @@ If you want to see the result just select and run all of the code from the "DECL
  
 We should see three RecordSets, like below;
 
-| Id                                  | Name             | RegisteredDate | Active |
-|-------------------------------------|------------------|----------------|--------|
-|17E3A22E-07E5-4AB2-8E62-1B15F9916909 | Mike Finnegan    | 1961-01-19     | 1      |
-|BADED780-BBFA-4A61-A22A-7746D87BE19C | David Frieburger | 1969-09-26     | 1      |
 
 |Id                                   | CustomerId                           | CustomerOrderNumber | CreatedOnTimeStamp      |
 |-------------------------------------|--------------------------------------|---------------------|-------------------------|
 |4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 17E3A22E-07E5-4AB2-8E62-1B15F9916909 | 0000001             | 2016-01-02 11:08:34.000 |
+
+
+| Id                                  | Name             | RegisteredDate | Active |
+|-------------------------------------|------------------|----------------|--------|
+|17E3A22E-07E5-4AB2-8E62-1B15F9916909 | Mike Finnegan    | 1961-01-19     | 1      |
+
 
 |Id | OrderId                              | ProductId | PurchasePrice |
 |---|--------------------------------------|-----------|---------------|
