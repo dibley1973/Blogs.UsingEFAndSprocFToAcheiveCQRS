@@ -54,6 +54,8 @@
     <Compile Include="Dtos\CustomerDto.cs" />
     <Compile Include="Dtos\OrderDetailsDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryResults\SearchResult.cs" />
+    <Compile Include="QueryResults\SingleSearchResult.cs" />
     <Compile Include="ReadModels\OrderReadModel.cs" />
     <Compile Include="Context\ReadContext.cs" />
     <Compile Include="StoredProcedures\GetOrderDetailsForOrderId.cs" />

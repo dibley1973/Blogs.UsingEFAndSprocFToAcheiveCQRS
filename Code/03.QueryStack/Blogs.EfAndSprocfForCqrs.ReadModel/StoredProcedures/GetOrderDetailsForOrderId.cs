@@ -1,13 +1,17 @@
-﻿using System;
+﻿using Blogs.EfAndSprocfForCqrs.ReadModel.Dtos;
 using Dibware.StoredProcedureFramework.Base;
+using System;
 using System.Collections.Generic;
-using Blogs.EfAndSprocfForCqrs.ReadModel.Dtos;
 
 namespace Blogs.EfAndSprocfForCqrs.ReadModel.StoredProcedures
 {
     internal class GetOrderDetailsForOrderId
         : StoredProcedureBase<GetOrderDetailsForOrderId.ResultSet, GetOrderDetailsForOrderId.Parameter>
     {
+        public GetOrderDetailsForOrderId(GetOrderDetailsForOrderId.Parameter parameters)
+            : base(parameters)
+        { }
+
         internal class Parameter
         {
             public Guid Id { get; set; }
