@@ -18,7 +18,7 @@ BEGIN
     WHERE       [Id] = @OrderId;
 
     /* Customer who ordered */
-    SELECT      [customer].[Id]                [Id]
+    SELECT      [customer].[Id]         [Id]
     ,           [Name]
     ,           [RegisteredDate]
     ,           [Active]

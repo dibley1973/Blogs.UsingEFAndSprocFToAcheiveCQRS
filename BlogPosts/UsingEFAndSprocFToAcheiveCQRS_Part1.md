@@ -121,7 +121,7 @@ If you want to see the result just select and run all of the code from the "DECL
         WHERE       [Id] = @OrderId;
 
         /* Customer who ordered */
-        SELECT      @OrderId                [Id]
+        SELECT      [customer].[Id]         [Id]
         ,           [Name]
         ,           [RegisteredDate]
         ,           [Active]
@@ -132,7 +132,6 @@ If you want to see the result just select and run all of the code from the "DECL
 
         /* Products on the order */
         SELECT      [ordered].[Id]
-        ,           [ordered].[OrderId]
         ,           [ordered].[ProductId]
         ,           [product].[Key]
         ,           [product].[Name]
