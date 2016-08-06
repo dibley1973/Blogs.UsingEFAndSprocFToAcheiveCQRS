@@ -22,7 +22,7 @@ In the *Context* folder create a new public class called *ReadContext*. Give it 
     {
         private bool _disposed;
 
-        private readonly SqlConnection _connection;
+        private SqlConnection _connection;
 
         public ReadContext(string connectionString)
         {
@@ -31,8 +31,9 @@ In the *Context* folder create a new public class called *ReadContext*. Give it 
             _connection = new SqlConnection(connectionString);
         }
 
-        internal SqlConnection Connection {
-            get { return _connection;}
+        internal SqlConnection Connection
+        {
+            get { return _connection; }
         }
 
         public void Dispose()
@@ -48,27 +49,24 @@ In the *Context* folder create a new public class called *ReadContext*. Give it 
 
         private void Dispose(bool disposing)
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    CloseAndDisposeConnection();
-                }
+            if (_disposed) return;
 
-                _disposed = true;
-            }
+            if (disposing) CloseAndDisposeConnection();
+            
+
+            _disposed = true;
         }
 
         private void CloseAndDisposeConnection()
         {
+            if (_connection == null) return;
+
+            if (_connection.State != ConnectionState.Closed) _connection.Close();
+
             if (_connection != null)
             {
-                if (_connection.State != ConnectionState.Closed) _connection.Close();
-
-                if (_connection != null)
-                {
-                    _connection.Dispose();
-                }
+                _connection.Dispose();
+                _connection = null;
             }
         }
     }
@@ -123,23 +121,58 @@ The finished stored procedure class should look like below.
         }
     }
  
-Now we need some public Dto classes too represent the rows being returned from the stored procedure. Lets start with the *OrderDto*.
-
-This will have "Id", "CustomerOrderNumber" and "CreatedOnTimeStamp" properties which relate to the database fields and will also have a property to hold a reference to a *CustomerDto*, and a list of *ProductsOrdered*. 
+Now we need some public DTO classes too represent the rows being returned from the stored procedure. Lets start with the *OrderDto* which represents the rows from the first Recordset in the stored procedure.
 
     public class OrderDto
     {
         public Guid Id { get; set; }
+        public Guid CustomerId { get; set; }
+        public string CustomerOrderNumber { get; set; }
+        public DateTime CreatedOnTimeStamp { get; set; }
+    }
+    
+The second Recordset contains the customer information so lets create a *CustomerDto* DTO to represent that.
+    
+    public class CustomerDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public DateTime RegisteredDate { get; set; }
+        public bool Active { get; set; }
+    }
+
+And lastly we need a DTO to represent the products on the order, the *ProductsOrderedDto*.
+
+    public class ProductsOrderedDto
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public string Key { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal PurchasePrice { get; set; }
+    }
+
+So these DTOs will represents the rows returned from the stored procedure, but it would be nice to wrap these into a single object to return to the client. For this we will have an *OrderDetailsDto*. This will include some of the properties of the *OrderDto* and will have an "Id", a "CustomerOrderNumber" and a "CreatedOnTimeStamp" property. It will also encapsulate the *CustomerDto* and contain a list of *ProductsOrdered*. 
+
+    public class OrderDetailsDto
+    {
+        public OrderDetailsDto()
+        {
+            ProductsOnOrder = new List<ProductsOrderedDto>();
+        }
+
+        public Guid Id { get; set; }
         public string CustomerOrderNumber { get; set; }
         public DateTime CreatedOnTimeStamp { get; set; }
 
-        public CustomerDto Customer { get; set; }
-        public List<ProductsOrderedDto> ProductsOrdered { get; set; } 
+        public CustomerDto OrderOwner { get; set; }
+        public List<ProductsOrderedDto> ProductsOnOrder { get; private set; }
     }
+  
+ 
+Next in the ReadModels folder create a new public class called *OrderReadModel* which will use the "GetOrderDetailsForOrderId" class along with the *Stored Procedure Framework* to pull data from the database and load the DTOs with data.
 
  
-The *CustomerDto* will have
  
- 
-Next in the ReadModels folder create a new public class called *OrderReadModel* which will use the "" class along with the *Stored Procedure Framework* to pull data from the database. 
 

@@ -157,11 +157,11 @@ We should see three RecordSets, like below;
 |17E3A22E-07E5-4AB2-8E62-1B15F9916909 | Mike Finnegan    | 1961-01-19     | 1      |
 
 
-|Id | OrderId                              | ProductId | PurchasePrice |
-|---|--------------------------------------|-----------|---------------|
-|1  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 5         | 102.00        |
-|2  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 7         | 75.00         |
-|3  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 9         | 25.00         |
+|Id | OrderId                              | ProductId | Key                              | Name                                    | Description                                               | PurchasePrice |
+|---|--------------------------------------|-----------|----------------------------------|-----------------------------------------|-----------------------------------------------------------|---------------|
+|1  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 5         | snapon-ratchet-ring-metric-10-21 | Snap-On Metric Ratchet Ring Set 10-21mm | Snap-On Metric Ratchet set 10mm - 21mm                    | 102.00        |
+|2  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 7         | snap-on-ratchet-screwdriver-red  | Snap-On Ratchet Screwdriver in Red      | Snap-On Ratchet Screwdriver in Red with six bits included | 75.00         |
+|3  | 4A61A22A-BADE-D780-BBFA-BE19C7746D87 | 9         | pry-master-prybar                | Pri-Master 24" Pry-Bar                  | 24" Pry-Bar with plastic ergonmoic handle                 | 25.00         |
 
 All going well we shall call this a day and in the next article move on to the ReadModel and pull this data from the database using the **Stored Procedure framework**.
 

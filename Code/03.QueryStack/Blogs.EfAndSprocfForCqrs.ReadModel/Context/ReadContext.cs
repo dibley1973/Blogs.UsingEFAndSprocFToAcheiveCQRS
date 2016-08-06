@@ -3,14 +3,14 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace Blogs.EfAndSprocfForCqrs.ReadModel.ReadModels
+namespace Blogs.EfAndSprocfForCqrs.ReadModel.Context
 {
 
     public class ReadContext : IDisposable
     {
         private bool _disposed;
 
-        private readonly SqlConnection _connection;
+        private SqlConnection _connection;
 
         public ReadContext(string connectionString)
         {
@@ -37,27 +37,24 @@ namespace Blogs.EfAndSprocfForCqrs.ReadModel.ReadModels
 
         private void Dispose(bool disposing)
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    CloseAndDisposeConnection();
-                }
+            if (_disposed) return;
 
-                _disposed = true;
-            }
+            if (disposing) CloseAndDisposeConnection();
+            
+
+            _disposed = true;
         }
 
         private void CloseAndDisposeConnection()
         {
+            if (_connection == null) return;
+
+            if (_connection.State != ConnectionState.Closed) _connection.Close();
+
             if (_connection != null)
             {
-                if (_connection.State != ConnectionState.Closed) _connection.Close();
-
-                if (_connection != null)
-                {
-                    _connection.Dispose();
-                }
+                _connection.Dispose();
+                _connection = null;
             }
         }
     }
