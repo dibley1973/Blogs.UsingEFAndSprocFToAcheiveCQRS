@@ -309,4 +309,36 @@ And then return a *SingleSearchResult* with a *OrderDetailsDto* contained within
 
             return new SingleSearchResult<OrderDetailsDto>(result);
 
-We are now ready to call this code.
+We are now ready to call this code, so lets go to the services project *Blogs.EfAndSprocfForCqrs.Services* and add a class called *OrderService*. This service will provide all of the orchestration for the client between the ReadModel and WriteModel giving a single "endpoint" (*I use this term loosely*) for the client to connect to. The *Blogs.EfAndSprocfForCqrs.Services*  will need a reference to the *Blogs.EfAndSprocfForCqrs.ReadModel* project and then we can add field to hold a reference to the *OrderReadModel* in the *OrderService* class.
+
+    public class OrderService
+    {
+        private readonly OrderReadModel _orderReadModel;
+
+        public OrderService(OrderReadModel orderReadModel)
+        {
+            if (orderReadModel == null) throw new ArgumentNullException("orderReadModel");
+
+            _orderReadModel = orderReadModel;
+        }
+    }
+
+Lets now create a function to return the order details to the client. The function will return an *OrderDetailsModel* (which we have not yet defined) and will query the OrderReadModel to get the data for this. Once a response has returned from the *OrderReadModel* we will check if a result was found and if it was not we will throw an exception. This may unnecessarily seem "harsh" but in theory this method should never be called without a valid Order Id. If it is then it is either due to a bug in the calling code or an attempt to access data that should not. If we have a result then we can go ahead and construct the *OrderDetailsModel* from the *OrderDetailsDto*. We have chosen not to just expose the *OrderDetailsDto*  straight to the client for two reasons. The first is to do this we would either have to let the client have a reference to the *Blogs.EfAndSprocfForCqrs.ReadModel* so it can see the *OrderDetailsDto* or we would have to declare the *OrderDetailsDto* in a *shared* project that multiple layers can see, which is not something I am adverse to but just choose not to in this case due to the second reason. The second reason is that this service method may also do some additional orchestration and data gathering which may need to be appended to the object being returned. If we use the DTO then the DTO has to have extran properties which were not needed to be populated by the OrderReadmodel in the first call. It may seem like unnecessary duplication of code, but I feel each layer and each class in each layer should only be interested in what *it* needs to know.
+
+        public OrderDetailsModel GetOrderForId(Guid id)
+        {
+            var query = _orderReadModel.GetOrderDetails(id);
+            var resultNotFound = query.ResultWasFound == false;
+
+            if (resultNotFound) throw new InvalidOperationException("The requested order was not found. ");
+
+            OrderDetailsModel model = new OrderDetailsModel(query.Result);
+
+            return model;
+        }
+    
+    
+    
+
+
+And finally to our Client, well.. the *Blogs.EfAndSprocfForCqrs.IntegrationTests* project and add a reference to the *Blogs.EfAndSprocfForCqrs.Services* project.
