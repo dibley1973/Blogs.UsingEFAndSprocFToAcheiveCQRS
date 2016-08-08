@@ -8,13 +8,13 @@ So moving on to the "Blogs.EfAndSprocfForCqrs.ReadModel" project, as we intend t
     
 The next task is to set up the *ReadModel* folder structure in the project.
 
-|--03.QueryStack
-|  +--Blogs.EfAndSprocfForCqrs.ReadModel
-|     +--Context
-|     +--Dtos
-|     +--ReadModels
-|     +--StoredProcedures
-|
+    |--03.QueryStack
+    |  +--Blogs.EfAndSprocfForCqrs.ReadModel
+    |     +--Context
+    |     +--Dtos
+    |     +--ReadModels
+    |     +--StoredProcedures
+    |
 
 In the *Context* folder create a new public class called *ReadContext*. Give it a private field of type *SqlConnection* and make it implement the *Dispose Pattern*, closing and disposing of the connection within The disposing path of the *Dispose(bool disposing)* method. This will ensure that when our *ReadContext* is disposed our connection is closed and cleaned up.
 
