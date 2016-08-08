@@ -14,7 +14,7 @@ namespace Blogs.EfAndSprocfForCqrs.ReadModel.StoredProcedures
 
         internal class Parameter
         {
-            public Guid Id { get; set; }
+            public Guid OrderId { get; set; }
         }
 
         internal class ResultSet

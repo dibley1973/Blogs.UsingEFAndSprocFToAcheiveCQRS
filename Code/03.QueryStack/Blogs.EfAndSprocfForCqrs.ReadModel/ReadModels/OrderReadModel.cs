@@ -22,7 +22,7 @@ namespace Blogs.EfAndSprocfForCqrs.ReadModel.ReadModels
 
         public SingleSearchResult<OrderDetailsDto> GetOrderDetails(Guid id)
         {
-            var parameters = new GetOrderDetailsForOrderId.Parameter { Id = id };
+            var parameters = new GetOrderDetailsForOrderId.Parameter { OrderId = id };
             var procedure = new GetOrderDetailsForOrderId(parameters);
 
             GetOrderDetailsForOrderId.ResultSet procedureResult = _readContext.Connection.ExecuteStoredProcedure(procedure);

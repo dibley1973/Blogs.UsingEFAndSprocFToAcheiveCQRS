@@ -58,6 +58,10 @@
       <Project>{cc298555-1458-4a82-b22a-58e43175345d}</Project>
       <Name>Blogs.EfAndSprocfForCqrs.Services</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Blogs.EfAndSprocfForCqrs.Dependencies\Blogs.EfAndSprocfForCqrs.Dependencies.csproj">
+      <Project>{ca662d96-700b-4a58-960d-f243784eca7b}</Project>
+      <Name>Blogs.EfAndSprocfForCqrs.Dependencies</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

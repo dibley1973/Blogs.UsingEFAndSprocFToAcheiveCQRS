@@ -125,7 +125,7 @@ The finished stored procedure class should look like below.
         
         internal class Parameter
         {
-            public Guid Id { get; set; }
+            public Guid OrderId { get; set; }
         }
 
         internal class ResultSet
@@ -284,7 +284,7 @@ Now we have a way to access the database, lets get on and create the implementat
 
         public SingleSearchResult<OrderDetailsDto> GetOrderDetails(Guid id)
         {
-            var parameters = new GetOrderDetailsForOrderId.Parameter { Id = id };
+            var parameters = new GetOrderDetailsForOrderId.Parameter { OrderId = id };
             var procedure = new GetOrderDetailsForOrderId(parameters);
 
             GetOrderDetailsForOrderId.ResultSet procedureResult = _readContext.Connection.ExecuteStoredProcedure(procedure);
@@ -323,22 +323,158 @@ We are now ready to call this code, so lets go to the services project *Blogs.Ef
         }
     }
 
-Lets now create a function to return the order details to the client. The function will return an *OrderDetailsModel* (which we have not yet defined) and will query the OrderReadModel to get the data for this. Once a response has returned from the *OrderReadModel* we will check if a result was found and if it was not we will throw an exception. This may unnecessarily seem "harsh" but in theory this method should never be called without a valid Order Id. If it is then it is either due to a bug in the calling code or an attempt to access data that should not. If we have a result then we can go ahead and construct the *OrderDetailsModel* from the *OrderDetailsDto*. We have chosen not to just expose the *OrderDetailsDto*  straight to the client for two reasons. The first is to do this we would either have to let the client have a reference to the *Blogs.EfAndSprocfForCqrs.ReadModel* so it can see the *OrderDetailsDto* or we would have to declare the *OrderDetailsDto* in a *shared* project that multiple layers can see, which is not something I am adverse to but just choose not to in this case due to the second reason. The second reason is that this service method may also do some additional orchestration and data gathering which may need to be appended to the object being returned. If we use the DTO then the DTO has to have extran properties which were not needed to be populated by the OrderReadmodel in the first call. It may seem like unnecessary duplication of code, but I feel each layer and each class in each layer should only be interested in what *it* needs to know.
+Lets now create a function to return the order details to the client. The function will return an *OrderDetailsModel* (which we have not yet defined) and will query the OrderReadModel to get the data for this. Once a response has returned from the *OrderReadModel* we will check if a result was found and if it was not we will throw an exception. This may unnecessarily seem "harsh" but in theory this method should never be called without a valid Order Id. If it is then it is either due to a bug in the calling code or an attempt to access data that should not. If we have a result then we can go ahead and construct the *OrderDetailsModel* from the *OrderDetailsDto*. We have chosen not to just expose the *OrderDetailsDto*  straight to the client for two reasons. The first is to do this we would either have to let the client have a reference to the *Blogs.EfAndSprocfForCqrs.ReadModel* so it can see the *OrderDetailsDto* or we would have to declare the *OrderDetailsDto* in a *shared* project that multiple layers can see, which is not something I am adverse to but just choose not to in this case due to the second reason. The second reason is that this service method may also do some additional orchestration and data gathering which may need to be appended to the object being returned. If we use the DTO then the DTO has to have extra properties which were not needed to be populated by the OrderReadmodel in the first call. It may seem like unnecessary duplication of code, but I feel each layer and each class in each layer should only be interested in what *it* needs to know. So Lets populate define and populate the *OrderDetialsModel*
 
-        public OrderDetailsModel GetOrderForId(Guid id)
+    public class OrderDetailsModel
+    {
+        public Guid Id { get; private set; }
+        public string CustomerOrderNumber { get; private set; }
+        public DateTime CreatedOnTimeStamp { get; private set; }
+        public CustomerModel OrderOwner { get; private set; }
+        public List<ProductModel> ProductsOnOrder { get; private set; }
+
+        public OrderDetailsModel(OrderDetailsDto orderDetails)
         {
-            var query = _orderReadModel.GetOrderDetails(id);
-            var resultNotFound = query.ResultWasFound == false;
+            if (orderDetails == null) throw new ArgumentNullException("orderDetails");
 
-            if (resultNotFound) throw new InvalidOperationException("The requested order was not found. ");
+            ProductsOnOrder = new List<ProductModel>();
 
-            OrderDetailsModel model = new OrderDetailsModel(query.Result);
-
-            return model;
+            CreatedOnTimeStamp = orderDetails.CreatedOnTimeStamp;
+            CustomerOrderNumber = orderDetails.CustomerOrderNumber;
+            OrderOwner = new CustomerModel(orderDetails.OrderOwner);
+            Id = orderDetails.Id;
+            LoadProductsOnOrder(orderDetails.ProductsOnOrder);
         }
-    
-    
-    
 
+        private void LoadProductsOnOrder(List<ProductsOrderedDto> productsOnOrder)
+        {
+            foreach (var productsOrderedDto in productsOnOrder)
+            {
+                var productOnOrder = new ProductModel
+                {
+                    Description = productsOrderedDto.Description,
+                    Id = productsOrderedDto.Id,
+                    Key = productsOrderedDto.Key,
+                    Name = productsOrderedDto.Name,
+                    ProductId = productsOrderedDto.ProductId,
+                    PurchasePrice = productsOrderedDto.PurchasePrice
+                };
 
-And finally to our Client, well.. the *Blogs.EfAndSprocfForCqrs.IntegrationTests* project and add a reference to the *Blogs.EfAndSprocfForCqrs.Services* project.
+                ProductsOnOrder.Add(productOnOrder);
+            }
+        }
+    }
+
+    public class CustomerModel
+    {
+        public CustomerModel(CustomerDto orderOwner)
+        {
+            Id = orderOwner.Id;
+            Active = orderOwner.Active;
+            Name = orderOwner.Name;
+            RegisteredDate = orderOwner.RegisteredDate;
+        }
+
+        public Guid Id { get; private set; }
+        public bool Active { get; private set; }
+        public string Name { get; private set; }
+        public DateTime RegisteredDate { get; private set; }
+    }
+    
+    public class ProductModel
+    {
+        public string Description { get; set; }
+        public int Id { get; set; }
+        public string Key { get; set; }
+        public string Name { get; set; }
+        public int ProductId { get; set; }
+        public decimal PurchasePrice { get; set; }
+    }
+
+That's it for the OrderService, now lets move to our Client...., well.. the *Blogs.EfAndSprocfForCqrs.IntegrationTests* project! We will start by adding adding a reference to the *Blogs.EfAndSprocfForCqrs.Services* project, adding a *ReadModelTests* class which will represent our calling client and within this creating a new test to represent a call to the service with an invalid OrderId. Within this test we will instantiate a new instance of the *OrderService*... but wait... we can't do this as the constructor requires an instance of an *OrderReadModel* which we just don't have a reference for! Damn. So normally I'd use a dependency injection framework like NInject to handle this, but for the sake of brevity lets just set a quick project called *Blogs.EfAndSprocfForCqrs.Dependencies* in the *01.Client* folder to handle all of our default dependencies. This project will need project references to *Blogs.EfAndSprocfForCqrs.ReadModel* and *Blogs.EfAndSprocfForCqrs.Services* and will contain a single static class.
+
+    public static class Defaults
+    {
+        public readonly static string DefaultConnectionString = Properties.Settings.Default.DefaultConnection;
+
+        public static ReadContext DefaultContext
+        {
+            get
+            {
+                return new ReadContext(DefaultConnectionString);
+            }
+        }
+
+        public static OrderReadModel DefaultOrderReadModel
+        {
+            get
+            {
+                return new OrderReadModel(DefaultContext);
+            }
+        }
+
+        public static OrderService DefaultOrderService
+        {
+            get
+            {
+                return new OrderService(DefaultOrderReadModel);
+            }
+        }
+    }
+
+So NOW we can finally move to our "client" and create a test for retrieving data for an order with an ID that does not exists. Because one does not exist we would expect an InvalidOperationException to be raised.
+
+    [TestClass]
+    public class ReadModelTests
+    {
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetOrderForId_ThrowsException_WhenGivenInvalidId()
+        {
+            // ARRANGE
+            var orderService = Dependencies.Defaults.DefaultOrderService;
+            var invalidId = new Guid("0bab4fc6-d749-455c-afee-73cfb0a01d08");
+
+            // ACT
+            orderService.GetOrderForId(invalidId);
+        }
+    }
+    
+Now lets add a test to simulate retrieving order details for an order whose ID does exist.
+
+    [TestMethod]
+    public void GetOrderForId_ReturnsOrderDetails_WhenGivenAValidId()
+    {
+        // ARRANGE
+        var orderService = Dependencies.Defaults.DefaultOrderService;
+        var invalidId = new Guid("4a61a22a-bade-d780-bbfa-be19c7746d87");
+
+        // ACT
+        var model = orderService.GetOrderForId(invalidId);
+
+        // ASSERT
+        Assert.AreEqual("17e3a22e-07e5-4ab2-8e62-1b15f9916909", model.OrderOwner.Id.ToString());
+        Assert.AreEqual("0000001", model.CustomerOrderNumber);
+        Assert.AreEqual("2016/01/02 11:08:34", model.CreatedOnTimeStamp.ToString("yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture));
+        Assert.IsTrue(model.OrderOwner.Active);
+        Assert.AreEqual("17e3a22e-07e5-4ab2-8e62-1b15f9916909", model.OrderOwner.Id.ToString());
+        Assert.AreEqual("Mike Finnegan", model.OrderOwner.Name);
+        Assert.AreEqual("1961/01/19 00:00:00", model.OrderOwner.RegisteredDate.ToString("yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture));
+        Assert.AreEqual(3, model.ProductsOnOrder.Count);
+        Assert.AreEqual(1, model.ProductsOnOrder.First().Id);
+        Assert.AreEqual(5, model.ProductsOnOrder.First().ProductId);
+        Assert.AreEqual("snapon-ratchet-ring-metric-10-21", model.ProductsOnOrder.First().Key);
+        Assert.AreEqual("Snap-On Metric Ratchet Ring Set 10-21mm", model.ProductsOnOrder.First().Name);
+    }
+
+So now we have called our service for an order that does not exist and for one that does. This about wraps up this article. In the next article we will look at using Entity Framework for the *Command Stack*. If you wish to reread the part one, the link is below.
+
+### Links
+
+[Using Entity Framework and the Store Procedure Framework To Achieve CQRS - Part 1] (https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS/blob/master/BlogPosts/UsingEFAndSprocFToAcheiveCQRS_Part1.md)
+
+This post and all corresponding code and data can be found on my GitHub project - [https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS)
+
+### Disclaimer
+
+I am the author of the *Stored Procedure Framework*. 

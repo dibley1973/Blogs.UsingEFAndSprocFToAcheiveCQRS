@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BlogPosts", "BlogPosts", "{
 		BlogPosts\SolutionExplorer_01.png = BlogPosts\SolutionExplorer_01.png
 		BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part1.md = BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part1.md
 		BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part2.md = BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part2.md
+		UsingEFAndSprocFToAcheiveCQRS_Part3.md = UsingEFAndSprocFToAcheiveCQRS_Part3.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code", "Code", "{DE7EAEB9-CAC1-46D4-B79A-7A6B9A68E3EB}"
@@ -34,6 +35,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blogs.EfAndSprocfForCqrs.DomainModel", "Code\04.CommandStack\Blogs.EfAndSprocfForCqrs.DomainModel\Blogs.EfAndSprocfForCqrs.DomainModel.csproj", "{4B9B0577-355B-49FB-A4A3-AFDA52D170EE}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Blogs.EfAndSprocfForCqrs.Database", "Code\05.Database\Blogs.EfAndSprocfForCqrs.Database\Blogs.EfAndSprocfForCqrs.Database.sqlproj", "{5D518781-BBAA-4780-826F-176EC5FD65B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blogs.EfAndSprocfForCqrs.Dependencies", "Code\01.Client\Blogs.EfAndSprocfForCqrs.Dependencies\Blogs.EfAndSprocfForCqrs.Dependencies.csproj", "{CA662D96-700B-4A58-960D-F243784ECA7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +66,10 @@ Global
 		{5D518781-BBAA-4780-826F-176EC5FD65B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D518781-BBAA-4780-826F-176EC5FD65B8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5D518781-BBAA-4780-826F-176EC5FD65B8}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CA662D96-700B-4A58-960D-F243784ECA7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA662D96-700B-4A58-960D-F243784ECA7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA662D96-700B-4A58-960D-F243784ECA7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA662D96-700B-4A58-960D-F243784ECA7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,5 +85,6 @@ Global
 		{E83647DF-6685-4BAC-AFEC-A0CFEBFFD59E} = {2A118C9B-A897-4D44-B0A4-A6A53AF12326}
 		{4B9B0577-355B-49FB-A4A3-AFDA52D170EE} = {59B8AAB6-E9C3-47D3-BCE7-12386DF8D06A}
 		{5D518781-BBAA-4780-826F-176EC5FD65B8} = {869449B4-EF88-4753-B3B8-F49F9EB9E8E9}
+		{CA662D96-700B-4A58-960D-F243784ECA7B} = {73706FD9-05FB-4696-BF0D-F140A03266E8}
 	EndGlobalSection
 EndGlobal
