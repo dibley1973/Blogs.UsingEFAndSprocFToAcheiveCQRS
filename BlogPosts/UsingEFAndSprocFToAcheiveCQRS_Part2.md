@@ -2,19 +2,19 @@
 
 This article follows on from part 1 where we described the background to the problem, set up the solution and added seed data to the database. In this article we will tackle the *QueryStack* and more specifically the *ReadModel*.
 
-So moving on to the "Blogs.EfAndSprocfForCqrs.ReadModel" project, as we intend to use the *Stored Procedure Framework* for data access in the *QueryStack* lets use *NuGet* to add the *Stored Procedure Framework* library to this project. At the time of writing version 1.0.3. is available on NuGet so this is the version I will add to the project. You can use the Package Manager in visual studio or the console. I prefer to use the GUI in Visual studio but if you prefer to use the console then the command line is  below.
+So moving on to the "Blogs.EfAndSprocfForCqrs.ReadModel" project, as we intend to use the *Stored Procedure Framework* for data access in the *QueryStack* lets use *NuGet* to add the *Stored Procedure Framework* library to this project. At the time of writing version 1.0.3. is available on NuGet so this is the version I will add to the project. You can use the *Package Manager* in *Visual Studio* or the console. I prefer to use the GUI in Visual studio but if you prefer to use the console then the command line is  below.
 
     PM> Install-Package Dibware.StoredProcedureFramework
     
 The next task is to set up the *ReadModel* folder structure in the project.
 
-|--03.QueryStack
-|  +--Blogs.EfAndSprocfForCqrs.ReadModel
-|     +--Context
-|     +--Dtos
-|     +--ReadModels
-|     +--StoredProcedures
-|
+    |--03.QueryStack
+    |  +--Blogs.EfAndSprocfForCqrs.ReadModel
+    |     +--Context
+    |     +--Dtos
+    |     +--ReadModels
+    |     +--StoredProcedures
+    |
 
 In the *Context* folder create a new public class called *ReadContext*. Give it a private field of type *SqlConnection* and make it implement the *Dispose Pattern*, closing and disposing of the connection within The disposing path of the *Dispose(bool disposing)* method. This will ensure that when our *ReadContext* is disposed our connection is closed and cleaned up.
 
@@ -363,6 +363,26 @@ Lets now create a function to return the order details to the client. The functi
                 ProductsOnOrder.Add(productOnOrder);
             }
         }
+    }
+
+        private void LoadProductsOnOrder(List<ProductsOrderedDto> productsOnOrder)
+        {
+            foreach (var productsOrderedDto in productsOnOrder)
+            {
+                var productOnOrder = new ProductModel
+                {
+                    Description = productsOrderedDto.Description,
+                    Id = productsOrderedDto.Id,
+                    Key = productsOrderedDto.Key,
+                    Name = productsOrderedDto.Name,
+                    ProductId = productsOrderedDto.ProductId,
+                    PurchasePrice = productsOrderedDto.PurchasePrice
+                };
+
+                ProductsOnOrder.Add(productOnOrder);
+            }
+        }
+    }
     }
 
     public class CustomerModel
