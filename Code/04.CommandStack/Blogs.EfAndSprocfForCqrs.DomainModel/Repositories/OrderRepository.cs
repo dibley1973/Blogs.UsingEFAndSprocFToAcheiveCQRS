@@ -27,7 +27,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Repositories
             return _context.Set<Order>().Find(id);
         }
 
-        public IEnumerable<Order> GetAll()
+        public IEnumerable<Order> GetAllForCustomer(Guid customerId)
         {
             return _context.Set<Order>().ToList();
         }
