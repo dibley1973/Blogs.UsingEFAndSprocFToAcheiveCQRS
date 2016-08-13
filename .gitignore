@@ -190,6 +190,7 @@ ClientBin/
 *.dbproj.schemaview
 *.pfx
 *.publishsettings
+*.jfm
 node_modules/
 orleans.codegen.cs
 
