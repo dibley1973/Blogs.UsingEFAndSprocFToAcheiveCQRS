@@ -6,6 +6,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
 {
     internal class UnitOfWork : IDisposable
     {
+        private bool _disposed;
         private readonly CommandContext _context;
 
         public UnitOfWork(CommandContext context)
@@ -36,6 +37,15 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
         {
             Dispose(false);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing) _context.Dispose();
+
+            _disposed = true;
         }
     }
 }

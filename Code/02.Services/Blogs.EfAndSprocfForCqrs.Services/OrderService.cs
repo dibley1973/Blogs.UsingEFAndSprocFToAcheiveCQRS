@@ -1,5 +1,6 @@
 ﻿using Blogs.EfAndSprocfForCqrs.ReadModel.ReadModels;
 using System;
+using System.Collections.Generic;
 using Blogs.EfAndSprocfForCqrs.Services.Models;
 
 namespace Blogs.EfAndSprocfForCqrs.Services
@@ -25,6 +26,11 @@ namespace Blogs.EfAndSprocfForCqrs.Services
             OrderDetailsModel model = new OrderDetailsModel(query.Result);
 
             return model;
+        }
+
+        public void CreateOrderForCustomer(Guid customerId, List<int> productIds)
+        {
+
         }
     }
 }

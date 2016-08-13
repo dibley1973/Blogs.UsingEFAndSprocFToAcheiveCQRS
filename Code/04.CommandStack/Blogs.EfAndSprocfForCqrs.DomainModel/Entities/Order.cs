@@ -5,7 +5,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Entities
     internal class Order
     {
         public int Id { get; set; }
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         public string CustomerOrderNumber { get; set; }
         public DateTime CreatedOnTimeStamp { get; set; }
 

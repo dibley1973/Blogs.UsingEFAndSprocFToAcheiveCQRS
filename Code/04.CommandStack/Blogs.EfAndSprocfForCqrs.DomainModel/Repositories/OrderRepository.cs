@@ -29,7 +29,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Repositories
 
         public IEnumerable<Order> GetAllForCustomer(Guid customerId)
         {
-            return _context.Set<Order>().ToList();
+            return _context.Set<Order>().Where(order => order.CustomerId == customerId).ToList();
         }
     }
 }
