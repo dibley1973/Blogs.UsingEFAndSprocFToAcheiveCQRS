@@ -3,7 +3,7 @@ using System;
 
 namespace Blogs.EfAndSprocfForCqrs.DomainModel.Entities
 {
-    internal class ProductOrdered
+    public class ProductOnOrder
     {
         public int Id { get; set; }
         public Guid OrderId { get; set; }

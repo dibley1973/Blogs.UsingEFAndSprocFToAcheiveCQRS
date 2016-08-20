@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Blogs.EfAndSprocfForCqrs.DomainModel.Repositories
 {
-    internal class OrderRepository
+    public class OrderRepository
     {
         private readonly CommandContext _context;
 

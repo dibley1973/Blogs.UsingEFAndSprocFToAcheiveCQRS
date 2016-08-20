@@ -52,7 +52,8 @@
     <Compile Include="Entities\Customer.cs" />
     <Compile Include="Entities\Order.cs" />
     <Compile Include="Entities\Product.cs" />
-    <Compile Include="Entities\ProductOrdered.cs" />
+    <Compile Include="Entities\ProductOnOrder.cs" />
+    <Compile Include="Factories\OrderFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Transactional\UnitOfWork.cs" />

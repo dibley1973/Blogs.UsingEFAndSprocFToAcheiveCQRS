@@ -4,7 +4,7 @@ using Blogs.EfAndSprocfForCqrs.DomainModel.Entities;
 
 namespace Blogs.EfAndSprocfForCqrs.DomainModel.Context
 {
-    internal class CommandContext : DbContext , IDisposable
+    public class CommandContext : DbContext , IDisposable
     {
         public CommandContext()
         {

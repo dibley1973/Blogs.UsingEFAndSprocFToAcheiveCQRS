@@ -1,4 +1,6 @@
-﻿using Blogs.EfAndSprocfForCqrs.ReadModel.Context;
+﻿using Blogs.EfAndSprocfForCqrs.DomainModel.Context;
+using Blogs.EfAndSprocfForCqrs.DomainModel.Transactional;
+using Blogs.EfAndSprocfForCqrs.ReadModel.Context;
 using Blogs.EfAndSprocfForCqrs.ReadModel.ReadModels;
 using Blogs.EfAndSprocfForCqrs.Services;
 
@@ -28,7 +30,23 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
         {
             get
             {
-                return new OrderService(DefaultOrderReadModel);
+                return new OrderService(DefaultOrderReadModel, DefaultUnitOfWork);
+            }
+        }
+
+        public static UnitOfWork DefaultUnitOfWork
+        {
+            get
+            {
+                return new UnitOfWork(DefaultCommandContext);
+            }
+        }
+
+        public static CommandContext DefaultCommandContext 
+        {
+            get
+            {
+                return new CommandContext();
             }
         }
     }

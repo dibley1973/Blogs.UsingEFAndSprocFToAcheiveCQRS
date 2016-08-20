@@ -34,6 +34,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CreateNewOrderForCustomerWithProductsCommand.cs" />
     <Compile Include="Models\CustomerModel.cs" />
     <Compile Include="Models\OrderDetailsModel.cs" />
     <Compile Include="OrderService.cs" />

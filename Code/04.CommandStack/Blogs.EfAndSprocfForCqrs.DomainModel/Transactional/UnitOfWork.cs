@@ -4,7 +4,7 @@ using System;
 
 namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
 {
-    internal class UnitOfWork : IDisposable
+    public class UnitOfWork : IDisposable
     {
         private bool _disposed;
         private readonly CommandContext _context;
@@ -18,7 +18,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
             Orders = new OrderRepository(context);
         }
 
-        private OrderRepository Orders { get; set; }
+        public OrderRepository Orders { get; set; }
 
         /// <summary>
         /// Called to complete a unit of work.

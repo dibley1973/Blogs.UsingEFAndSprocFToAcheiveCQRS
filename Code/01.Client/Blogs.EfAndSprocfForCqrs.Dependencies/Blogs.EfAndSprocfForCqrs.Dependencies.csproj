@@ -51,6 +51,10 @@
       <Project>{e83647df-6685-4bac-afec-a0cfebffd59e}</Project>
       <Name>Blogs.EfAndSprocfForCqrs.ReadModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\04.CommandStack\Blogs.EfAndSprocfForCqrs.DomainModel\Blogs.EfAndSprocfForCqrs.DomainModel.csproj">
+      <Project>{4b9b0577-355b-49fb-a4a3-afda52d170ee}</Project>
+      <Name>Blogs.EfAndSprocfForCqrs.DomainModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
