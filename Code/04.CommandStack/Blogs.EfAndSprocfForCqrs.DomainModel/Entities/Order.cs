@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Blogs.EfAndSprocfForCqrs.DomainModel.Entities
 {
@@ -9,7 +10,12 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Entities
         public Guid CustomerId { get; set; }
         public string CustomerOrderNumber { get; set; }
         public DateTime CreatedOnTimeStamp { get; set; }
-        public virtual List<ProductOnOrder> ProductsOnOrder { get; set; }
+        public virtual ReadOnlyCollection<ProductOnOrder> ProductsOnOrder { get; set; }
         public virtual Customer OrderOwner { get; set; }
+
+        public void AddProductsOnOrder(List<ProductOnOrder> productsOnOrder)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

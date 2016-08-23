@@ -138,3 +138,6 @@ dont forget to alter and add in Tthe UnitOfWork and DefaultCommandContext...
                 return new OrderService(DefaultOrderReadModel, DefaultUnitOfWork);
             }
         }
+
+
+In the client (Integration Tests) renamed *ReadModelTests* to be *OrderServiceTests*
