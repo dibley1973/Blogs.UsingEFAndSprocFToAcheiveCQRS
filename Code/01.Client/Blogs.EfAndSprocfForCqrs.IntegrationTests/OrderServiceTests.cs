@@ -65,15 +65,13 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         public void CreateNewOrderForCustomerWithProducts_WhenGivenCommandWithEmptyCustomerId_ThrowsException()
         {
             // ARRANGE
-            var productsOnOrder = new Dictionary<int, int>
-            {
-                { 9, 1 },
-                { 9, 1 }
-            };
+            var productsOnOrder = new List<int> { 8, 9 };
+            var customerOrderNumber = "00123";
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
                 CustomerId = Guid.Empty,
-                ProductsOnOrder = productsOnOrder
+                ProductsOnOrder = productsOnOrder,
+                CustomerOrderNumber = customerOrderNumber
             };
             var orderService = Dependencies.Defaults.DefaultOrderService;
 
@@ -89,10 +87,12 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         {
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
+            var customerOrderNumber = "00123";
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
                 CustomerId = customerId,
-                ProductsOnOrder = null
+                ProductsOnOrder = null,
+                CustomerOrderNumber = customerOrderNumber
             };
             var orderService = Dependencies.Defaults.DefaultOrderService;
 
@@ -103,19 +103,37 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         }
 
         [TestMethod]
-        public void CreateNewOrderForCustomerWithProducts_WHEN_THEN()
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void CreateNewOrderForCustomerWithProducts_WhenGivenInvalidProducts_ThrowsException()
         {
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
-            var productsOnOrder = new Dictionary<int, int>
-            {
-                { 9, 1 },
-                { 9, 1 }
-            };
+            var productsOnOrder = new List<int> { 88, 99 };
+            var customerOrderNumber = "00123";
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
                 CustomerId = customerId,
-                ProductsOnOrder = productsOnOrder
+                ProductsOnOrder = productsOnOrder,
+                CustomerOrderNumber = customerOrderNumber
+            };
+            var orderService = Dependencies.Defaults.DefaultOrderService;
+
+            // ACT
+            orderService.CreateNewOrderForCustomerWithProducts(command);
+        }
+
+        [TestMethod]
+        public void CreateNewOrderForCustomerWithProducts_WhenGivenValidProducts_THEN()
+        {
+            // ARRANGE
+            var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
+            var productsOnOrder = new List<int> { 8, 9 };
+            var customerOrderNumber = "00123";
+            var command = new CreateNewOrderForCustomerWithProductsCommand
+            {
+                CustomerId = customerId,
+                ProductsOnOrder = productsOnOrder,
+                CustomerOrderNumber = customerOrderNumber
             };
             var orderService = Dependencies.Defaults.DefaultOrderService;
 

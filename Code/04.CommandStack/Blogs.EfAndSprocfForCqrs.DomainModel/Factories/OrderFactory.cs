@@ -8,20 +8,19 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Factories
 {
     public static class OrderFactory
     {
-        public static List<ProductOnOrder> CreateProductsOnOrder(Guid orderId, Dictionary<int, int> productsOnOrder)
+        public static List<ProductOnOrder> CreateProductsOnOrder(Guid orderId, List<Product> productsOnOrder)
         {
             if (productsOnOrder == null) throw new ArgumentNullException("productsOnOrder");
 
             var result = new List<ProductOnOrder>();
             if (!productsOnOrder.Any()) return result;
 
-            foreach (var productIdAndQuantity in productsOnOrder)
+            foreach (var product in productsOnOrder)
             {
                 var productOnOrder = new ProductOnOrder
                 {
-                    ProductId = productIdAndQuantity.Key,
-                    OrderId = orderId,
-
+                    ProductId = product.Id,
+                    OrderId = orderId
                 };
                 result.Add(productOnOrder);
             }

@@ -19,6 +19,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
         }
 
         public OrderRepository Orders { get; set; }
+        public ProductRepository Products { get; set; }
 
         /// <summary>
         /// Called to complete a unit of work.

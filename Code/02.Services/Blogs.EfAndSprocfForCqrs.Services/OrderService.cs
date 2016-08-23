@@ -4,6 +4,7 @@ using Blogs.EfAndSprocfForCqrs.Services.Commands;
 using Blogs.EfAndSprocfForCqrs.Services.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Blogs.EfAndSprocfForCqrs.DomainModel.Entities;
 using Blogs.EfAndSprocfForCqrs.DomainModel.Factories;
 
@@ -49,11 +50,13 @@ namespace Blogs.EfAndSprocfForCqrs.Services
 
             var orderId = OrderFactory.CreateNewOrderId();
 
-            List<ProductOnOrder> productsOnOrder = OrderFactory.CreateProductsOnOrder(orderId, command.ProductsOnOrder);
-            Order order = OrderFactory.CreateOrderFrom(orderId, command.CustomerId, productsOnOrder);
+            List<Product> productsOrdered = _unitOfWork.Products.GetProductsForIds(command.ProductsOnOrder).ToList();
 
-            //_unitOfWork.Orders.Add(order);
-            //_unitOfWork.Complete();
+            List<ProductOnOrder> productsOnOrder = OrderFactory.CreateProductsOnOrder(orderId, productsOrdered);
+            Order order = OrderFactory.CreateOrderFrom(orderId, command.CustomerId, command.CustomerOrderNumber, productsOnOrder);
+
+            _unitOfWork.Orders.Add(order);
+            _unitOfWork.Complete();
         }
     }
 }
