@@ -15,11 +15,12 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
 
             _context = context;
 
-            Orders = new OrderRepository(context);
+            Orders = new OrderRepository(_context);
+            Products = new ProductRepository(_context);
         }
 
-        public OrderRepository Orders { get; set; }
-        public ProductRepository Products { get; set; }
+        public OrderRepository Orders { get; private set; }
+        public ProductRepository Products { get; private set; }
 
         /// <summary>
         /// Called to complete a unit of work.

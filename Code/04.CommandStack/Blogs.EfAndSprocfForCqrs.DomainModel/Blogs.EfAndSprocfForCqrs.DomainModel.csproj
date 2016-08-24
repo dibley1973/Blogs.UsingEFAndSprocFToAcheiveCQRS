@@ -49,6 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context\CommandContext.cs" />
+    <Compile Include="Context\Configuration\CustomerConfiguration.cs" />
+    <Compile Include="Context\Configuration\ProductConfiguration.cs" />
+    <Compile Include="Context\Configuration\OrderConfiguration.cs" />
+    <Compile Include="Context\Configuration\ProductOnOrderConfiguration.cs" />
     <Compile Include="Entities\Customer.cs" />
     <Compile Include="Entities\Order.cs" />
     <Compile Include="Entities\Product.cs" />

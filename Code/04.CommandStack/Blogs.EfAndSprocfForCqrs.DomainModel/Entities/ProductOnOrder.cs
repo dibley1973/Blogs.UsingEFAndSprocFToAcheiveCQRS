@@ -9,5 +9,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Entities
         public Guid OrderId { get; set; }
         public int ProductId { get; set; }
         public decimal PurchasePrice { get; set; }
+
+        public virtual Order Order { get; set; }
     }
 }

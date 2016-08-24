@@ -8,9 +8,9 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
 {
     public static class Defaults
     {
-        public readonly static string DefaultConnectionString = Properties.Settings.Default.DefaultConnection;
+        private readonly static string DefaultConnectionString = Properties.Settings.Default.DefaultConnection;
 
-        public static ReadContext DefaultContext
+        private static ReadContext DefaultContext
         {
             get
             {
@@ -18,7 +18,7 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
             }
         }
 
-        public static OrderReadModel DefaultOrderReadModel
+        private static OrderReadModel DefaultOrderReadModel
         {
             get
             {
@@ -34,7 +34,7 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
             }
         }
 
-        public static UnitOfWork DefaultUnitOfWork
+        private static UnitOfWork DefaultUnitOfWork
         {
             get
             {
@@ -42,11 +42,11 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
             }
         }
 
-        public static CommandContext DefaultCommandContext 
+        private static CommandContext DefaultCommandContext
         {
             get
             {
-                return new CommandContext();
+                return new CommandContext(DefaultConnectionString);
             }
         }
     }

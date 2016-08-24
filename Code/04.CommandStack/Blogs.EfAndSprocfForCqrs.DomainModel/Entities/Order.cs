@@ -14,12 +14,13 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Entities
         }
 
         public Guid Id { get; set; }
-        public Guid CustomerId { get; set; }
         public string CustomerOrderNumber { get; set; }
         public DateTime CreatedOnTimeStamp { get; set; }
         public virtual ReadOnlyCollection<ProductOnOrder> ProductsOnOrder {
             get { return _productsOnOrder.AsReadOnly(); }
         }
+
+        public Guid CustomerId { get; set; }
         public virtual Customer OrderOwner { get; set; }
 
         public void AddProductsOnOrder(List<ProductOnOrder> productsOnOrder)

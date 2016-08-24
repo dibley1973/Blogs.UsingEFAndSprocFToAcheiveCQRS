@@ -1,9 +1,11 @@
 ﻿using Blogs.EfAndSprocfForCqrs.Services.Commands;
+using Blogs.EfAndSprocfForCqrs.Services.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Transactions;
 
 namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
 {
@@ -83,6 +85,28 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
+        public void CreateNewOrderForCustomerWithProducts_WhenGivenCommandWithEmptyOrderId_ThrowsException()
+        {
+            // ARRANGE
+            var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
+            var customerOrderNumber = "00123";
+            var command = new CreateNewOrderForCustomerWithProductsCommand
+            {
+                OrderId =  Guid.Empty,
+                CustomerId = customerId,
+                ProductsOnOrder = null,
+                CustomerOrderNumber = customerOrderNumber
+            };
+            var orderService = Dependencies.Defaults.DefaultOrderService;
+
+            // ACT
+            orderService.CreateNewOrderForCustomerWithProducts(command);
+
+            // ASSERT
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void CreateNewOrderForCustomerWithProducts_WhenGivenCommandWithNullProductsOnOrder_ThrowsException()
         {
             // ARRANGE
@@ -110,13 +134,15 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
             var productsOnOrder = new List<int> { 88, 99 };
             var customerOrderNumber = "00123";
+            var orderService = Dependencies.Defaults.DefaultOrderService;
+            var orderId = orderService.CreateOrderId();
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
+                OrderId = orderId,
                 CustomerId = customerId,
                 ProductsOnOrder = productsOnOrder,
                 CustomerOrderNumber = customerOrderNumber
             };
-            var orderService = Dependencies.Defaults.DefaultOrderService;
 
             // ACT
             orderService.CreateNewOrderForCustomerWithProducts(command);
@@ -129,18 +155,29 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
             var productsOnOrder = new List<int> { 8, 9 };
             var customerOrderNumber = "00123";
+            var orderService = Dependencies.Defaults.DefaultOrderService;
+            var orderId = orderService.CreateOrderId();
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
+                OrderId = orderId,
                 CustomerId = customerId,
                 ProductsOnOrder = productsOnOrder,
                 CustomerOrderNumber = customerOrderNumber
             };
-            var orderService = Dependencies.Defaults.DefaultOrderService;
+            OrderDetailsModel actual;
 
             // ACT
-            orderService.CreateNewOrderForCustomerWithProducts(command);
+            using (var transaction = new TransactionScope()) // This may not actually work??
+            {
+                orderService.CreateNewOrderForCustomerWithProducts(command);
+
+                actual = orderService.GetOrderForId(orderId);
+
+                transaction.Dispose();
+            }
 
             // ASSERT
+            Assert.IsNotNull(actual);
         }
     }
 }

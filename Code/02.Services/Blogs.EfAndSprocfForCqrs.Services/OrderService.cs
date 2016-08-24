@@ -1,12 +1,12 @@
-﻿using Blogs.EfAndSprocfForCqrs.DomainModel.Transactional;
+﻿using Blogs.EfAndSprocfForCqrs.DomainModel.Entities;
+using Blogs.EfAndSprocfForCqrs.DomainModel.Factories;
+using Blogs.EfAndSprocfForCqrs.DomainModel.Transactional;
 using Blogs.EfAndSprocfForCqrs.ReadModel.ReadModels;
 using Blogs.EfAndSprocfForCqrs.Services.Commands;
 using Blogs.EfAndSprocfForCqrs.Services.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Blogs.EfAndSprocfForCqrs.DomainModel.Entities;
-using Blogs.EfAndSprocfForCqrs.DomainModel.Factories;
 
 namespace Blogs.EfAndSprocfForCqrs.Services
 {
@@ -48,15 +48,19 @@ namespace Blogs.EfAndSprocfForCqrs.Services
             if (command.CustomerId == Guid.Empty) throw new ArgumentException("command.CustomerId");
             if (command.ProductsOnOrder == null) throw new ArgumentException("command.ProductsOnOrder");
 
-            var orderId = OrderFactory.CreateNewOrderId();
-
             List<Product> productsOrdered = _unitOfWork.Products.GetProductsForIds(command.ProductsOnOrder).ToList();
+            if (productsOrdered.Count != command.ProductsOnOrder.Count) throw new InvalidOperationException("Products on order not found! ");
 
-            List<ProductOnOrder> productsOnOrder = OrderFactory.CreateProductsOnOrder(orderId, productsOrdered);
-            Order order = OrderFactory.CreateOrderFrom(orderId, command.CustomerId, command.CustomerOrderNumber, productsOnOrder);
+            List<ProductOnOrder> productsOnOrder = OrderFactory.CreateProductsOnOrder(command.OrderId, productsOrdered);
+            Order order = OrderFactory.CreateOrderFrom(command.OrderId, command.CustomerId, command.CustomerOrderNumber, productsOnOrder);
 
             _unitOfWork.Orders.Add(order);
             _unitOfWork.Complete();
+        }
+
+        public Guid CreateOrderId()
+        {
+            return Guid.NewGuid();
         }
     }
 }
