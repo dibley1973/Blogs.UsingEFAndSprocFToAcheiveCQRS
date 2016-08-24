@@ -13,11 +13,11 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Context
     {
         #region Constructors
 
-        // Uncomment to use Entity Framework Power Tools EDMX viewer
+        // Uncomment parameterless constructor if you want to use the 'Entity Framework Power Tools' EDMX viewer
         //public CommandContext() {}
 
-        public CommandContext(string connectionOrName)
-            : base(connectionOrName)
+        public CommandContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
         {
             Configuration.LazyLoadingEnabled = false;
 
@@ -28,9 +28,10 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Context
 
         #region DBSets
 
+        public DbSet<Customer> Customer { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<Product> Product { get; set; }
-        public DbSet<Customer> Customer { get; set; }
+        public DbSet<ProductOnOrder> ProductOnOrder { get; set; }
 
         #endregion
 
@@ -40,7 +41,6 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Context
         {
             RemoveConventions(modelBuilder);
             AddAllEntityConfigurations(modelBuilder);
-            //AddEntityConfigurations(modelBuilder);
         }
 
         #endregion
@@ -85,41 +85,9 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Context
             return entityConfigurationsToRegister;
         }
 
-        //private static void AddEntityConfigurations(DbModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Configurations.Add(new OrderConfiguration());
-        //    modelBuilder.Configurations.Add(new ProductConfiguration());
-        //    modelBuilder.Configurations.Add(new ProductOnOrderConfiguration());
-        //}
-
         private static void RemoveConventions(DbModelBuilder modelBuilder)
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }
-
-        //private bool _disposed;
-
-        //public void Dispose()
-        //{
-        //    Dispose(true);
-        //}
-
-        //~CommandContext()
-        //{
-        //    Dispose(false);
-        //    GC.SuppressFinalize(this);
-        //}
-
-        //private void Dispose(bool disposing)
-        //{
-        //    if (_disposed) return;
-
-        //    //if (disposing) CloseAndDisposeConnection();
-
-        //    base.Dispose(disposing);
-
-        //    _disposed = true;
-        //}
-
     }
 }

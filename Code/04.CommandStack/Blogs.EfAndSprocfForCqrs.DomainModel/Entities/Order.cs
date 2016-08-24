@@ -23,7 +23,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Entities
         public Guid CustomerId { get; set; }
         public virtual Customer OrderOwner { get; set; }
 
-        public void AddProductsOnOrder(List<ProductOnOrder> productsOnOrder)
+        public void AddProductsToOrder(List<ProductOnOrder> productsOnOrder)
         {
             if(productsOnOrder == null) throw new ArgumentNullException("productsOnOrder");
             if(productsOnOrder.Count == 0) return;

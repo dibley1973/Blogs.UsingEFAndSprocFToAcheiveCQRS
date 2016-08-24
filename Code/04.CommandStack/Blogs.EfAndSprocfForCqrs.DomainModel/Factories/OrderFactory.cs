@@ -20,7 +20,8 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Factories
                 var productOnOrder = new ProductOnOrder
                 {
                     ProductId = product.Id,
-                    OrderId = orderId
+                    OrderId = orderId,
+                    PurchasePrice = product.Price
                 };
                 result.Add(productOnOrder);
             }
@@ -40,7 +41,7 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Factories
             order.CustomerId = customerId;
             order.CustomerOrderNumber = customerOrderNo;
             order.CreatedOnTimeStamp = DateTime.Now;
-            order.AddProductsOnOrder(productsOnOrder);
+            order.AddProductsToOrder(productsOnOrder);
             return order;
         }
     }

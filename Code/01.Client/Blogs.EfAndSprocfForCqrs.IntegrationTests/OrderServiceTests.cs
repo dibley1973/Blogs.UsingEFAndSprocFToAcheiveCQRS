@@ -68,7 +68,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         {
             // ARRANGE
             var productsOnOrder = new List<int> { 8, 9 };
-            var customerOrderNumber = "00123";
+            const string customerOrderNumber = "00123";
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
                 CustomerId = Guid.Empty,
@@ -89,10 +89,10 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         {
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
-            var customerOrderNumber = "00123";
+            const string customerOrderNumber = "00123";
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
-                OrderId =  Guid.Empty,
+                OrderId = Guid.Empty,
                 CustomerId = customerId,
                 ProductsOnOrder = null,
                 CustomerOrderNumber = customerOrderNumber
@@ -111,7 +111,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         {
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
-            var customerOrderNumber = "00123";
+            const string customerOrderNumber = "00123";
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
                 CustomerId = customerId,
@@ -133,7 +133,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
             var productsOnOrder = new List<int> { 88, 99 };
-            var customerOrderNumber = "00123";
+            const string customerOrderNumber = "00123";
             var orderService = Dependencies.Defaults.DefaultOrderService;
             var orderId = orderService.CreateOrderId();
             var command = new CreateNewOrderForCustomerWithProductsCommand
@@ -154,7 +154,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
             var productsOnOrder = new List<int> { 8, 9 };
-            var customerOrderNumber = "00123";
+            const string customerOrderNumber = "00123";
             var orderService = Dependencies.Defaults.DefaultOrderService;
             var orderId = orderService.CreateOrderId();
             var command = new CreateNewOrderForCustomerWithProductsCommand
@@ -178,6 +178,16 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
 
             // ASSERT
             Assert.IsNotNull(actual);
+            Assert.IsNotNull(actual.ProductsOnOrder);
+            Assert.AreEqual(2, actual.ProductsOnOrder.Count);
+
+            var actualProduct1 = actual.ProductsOnOrder.FirstOrDefault(p => p.ProductId == 8);
+            Assert.IsNotNull(actualProduct1);
+            Assert.AreEqual(14.99M, actualProduct1.PurchasePrice);
+
+            var actualProduct2 = actual.ProductsOnOrder.FirstOrDefault(p => p.ProductId == 9);
+            Assert.IsNotNull(actualProduct2);
+            Assert.AreEqual(29.99M, actualProduct2.PurchasePrice);
         }
     }
 }
