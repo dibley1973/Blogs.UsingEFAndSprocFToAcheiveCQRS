@@ -43,12 +43,12 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         ~UnitOfWork()
         {
             Dispose(false);
-            GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool disposing)

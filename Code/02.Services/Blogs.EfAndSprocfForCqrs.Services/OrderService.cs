@@ -1,11 +1,9 @@
-﻿using Blogs.EfAndSprocfForCqrs.DomainModel.Entities;
-using Blogs.EfAndSprocfForCqrs.DomainModel.Factories;
+﻿using Blogs.EfAndSprocfForCqrs.DomainModel.Factories;
 using Blogs.EfAndSprocfForCqrs.DomainModel.Transactional;
 using Blogs.EfAndSprocfForCqrs.ReadModel.ReadModels;
 using Blogs.EfAndSprocfForCqrs.Services.Commands;
 using Blogs.EfAndSprocfForCqrs.Services.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Blogs.EfAndSprocfForCqrs.Services
@@ -45,20 +43,23 @@ namespace Blogs.EfAndSprocfForCqrs.Services
         public void CreateNewOrderForCustomerWithProducts(CreateNewOrderForCustomerWithProductsCommand command)
         {
             if (command == null) throw new ArgumentNullException("command");
-            if (command.CustomerId == Guid.Empty) throw new ArgumentException("command.CustomerId");
+            if (command.OrderId == Guid.Empty) throw new ArgumentOutOfRangeException("command.OrderId", "OrderId must not be empty");
+            if (command.CustomerId == Guid.Empty) throw new ArgumentOutOfRangeException("command.CustomerId", "CustomerId must not be empty");
             if (command.ProductsOnOrder == null) throw new ArgumentException("command.ProductsOnOrder");
+            if (command.ProductsOnOrder.Count == 0) throw new ArgumentOutOfRangeException("command.ProductsOnOrder", "ProductsOnOrder must not be empty");
 
-            List<Product> productsOrdered = _unitOfWork.Products.GetProductsForIds(command.ProductsOnOrder).ToList();
-            if (productsOrdered.Count != command.ProductsOnOrder.Count) throw new InvalidOperationException("Products on order not found! ");
+            var productsOrdered = _unitOfWork.Products.GetProductsForIds(command.ProductsOnOrder).ToList();
+            var productCountShortfall = command.ProductsOnOrder.Count - productsOrdered.Count;
+            if (productCountShortfall > 0) throw new InvalidOperationException(productCountShortfall + " products on order not found! ");
 
-            List<ProductOnOrder> productsOnOrder = OrderFactory.CreateProductsOnOrder(command.OrderId, productsOrdered);
-            Order order = OrderFactory.CreateOrderFrom(command.OrderId, command.CustomerId, command.CustomerOrderNumber, productsOnOrder);
+            var productsOnOrder = OrderFactory.CreateProductsOnOrder(command.OrderId, productsOrdered);
+            var order = OrderFactory.CreateOrderFrom(command.OrderId, command.CustomerId, command.CustomerOrderNumber, productsOnOrder);
 
             _unitOfWork.Orders.Add(order);
             _unitOfWork.Complete();
         }
 
-        public Guid CreateOrderId()
+        public Guid GenerateNewOrderId()
         {
             return OrderFactory.CreateNewOrderId();
         }

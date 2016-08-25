@@ -1,5 +1,5 @@
-﻿using System;
-using Blogs.EfAndSprocfForCqrs.ReadModel.Dtos;
+﻿using Blogs.EfAndSprocfForCqrs.ReadModel.Dtos;
+using System;
 
 namespace Blogs.EfAndSprocfForCqrs.Services.Models
 {

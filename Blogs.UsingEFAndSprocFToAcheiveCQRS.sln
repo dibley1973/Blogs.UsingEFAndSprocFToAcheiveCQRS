@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BlogPosts", "BlogPosts", "{
 		BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part1.md = BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part1.md
 		BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part2.md = BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part2.md
 		BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part3.md = BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part3.md
+		BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part4.md = BlogPosts\UsingEFAndSprocFToAcheiveCQRS_Part4.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code", "Code", "{DE7EAEB9-CAC1-46D4-B79A-7A6B9A68E3EB}"

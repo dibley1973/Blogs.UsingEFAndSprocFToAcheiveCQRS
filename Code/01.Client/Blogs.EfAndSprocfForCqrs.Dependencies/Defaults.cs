@@ -18,7 +18,7 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
             }
         }
 
-        private static OrderReadModel DefaultOrderReadModel
+        public static OrderReadModel DefaultOrderReadModel
         {
             get
             {
@@ -34,21 +34,12 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
             }
         }
 
-        private static UnitOfWork DefaultUnitOfWork
+        public static UnitOfWork DefaultUnitOfWork
         {
             get
             {
                 return new UnitOfWork(DefaultConnectionString);
-                //return new UnitOfWork(DefaultCommandContext);
             }
         }
-
-        //private static CommandContext DefaultCommandContext
-        //{
-        //    get
-        //    {
-        //        return new CommandContext(DefaultConnectionString);
-        //    }
-        //}
     }
 }

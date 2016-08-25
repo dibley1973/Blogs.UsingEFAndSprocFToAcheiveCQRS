@@ -1,5 +1,5 @@
 # Using Entity Framework and the Store Procedure Framework To Achieve CQRS - Part #3
-This article follows on from Part 2 where we built the *QueryStack* and queried an order and some of its associated data, in this article we will shift our focus to the *Command Stack* and we will leverage *EntityFramework* to do add a new order to the database.
+This article follows on from [Part 2]() where we built the *QueryStack* and queried an order and some of its associated data, in this article we will shift our focus to the *Command Stack* and we will leverage *EntityFramework* to do add a new order to the database.
 
 Before we can get started we have to make a small amendment to the *dbo.Product* table structure. I had ommited the *Price* column. 
 
@@ -336,24 +336,38 @@ We will also need a repository for the products as when we create an order we ne
         }
     }
 
-As we will be updating two tables in the database when we create an order, one to hodl the order and one to hold the products on the order we need to ensure that our updating is carried out in a single atomic action. For this we will use the UnitOfWork pattern. So lets move to the *Transactional* folder and create our *UnitOfWork*. As the unit of work will hold it's own instance of teh CommandContext and will need to ensure it disposes of this correctly it will need to implement the *IDisposable* interface.
+As we will be updating two tables in the database when we create an order, one to hold the order and one to hold the products on the order we need to ensure that our updating is carried out in a single atomic action. For this we will use the UnitOfWork pattern. So lets move to the *Transactional* folder and create our *UnitOfWork*. As the unit of work will hold it's own instance of the CommandContext and will need to ensure it disposes of this correctly it will need to implement the *IDisposable* interface.
 
     public class UnitOfWork : IDisposable
     {
         private bool _disposed;
         private readonly CommandContext _context;
 
+We will condtruct the *UnitOfWork* with a connection name or connection string, and use this to instantiate a *CommandContext*. This will live around for the life of the UnitOfWork and be disposed along with the UnitOfWork by following the Dispose Pattern. The UnitOfWork will contin two repositories, an *OrderRepository* and a *ProductsRepository*. These will both be instantiated with the CommandContext insstance.
 
+        public UnitOfWork(string nameOrConnectionString)
+        {
+            if (string.IsNullOrWhiteSpace(nameOrConnectionString)) throw new ArgumentNullException("nameOrConnectionString");
 
+            _context = new CommandContext(nameOrConnectionString);
 
+            Orders = new OrderRepository(_context);
+            Products = new ProductRepository(_context);
+        }
 
+As well as the properties to expose the repositories there is a single method `Complete()` which will call `SaveChanges()` on the *CommandContext*. This method is called when all updates made to the repositories need to be persisted back to the database.
 
+        /// <summary>
+        /// Called to complete a unit of work.
+        /// </summary>
+        public void Complete()
+        {
+            _context.SaveChanges();
+        }
 
+Now the *UnitOfWork* is complete, we can focus on the *Blogs.EfAndSprocfForCqrs.Services* project and open the *OrderService* and use what we have created so far in this post to add a new order to the database. First we will add another private field to the service and this will hold a reference to the *UnitOfWork*. we will intialize it from the constructor just like we do with the OrderReadModel. we will pass the *UnitOfWork* into the service as we may want many services to perform actions all in one atomic transaction. for this reason we will not dispose of the *UnitOfWork* when the service dies, we will let the constructing code handle disposing of the *UnitOfWork* for us.
 
-Lets now focus on the *Blogs.EfAndSprocfForCqrs.Services* project and open the *OrderService* tackle how we use what we have created so far in this post to add a new order to the database.
-
-First add a private field to hold a reference to the *UnitOfWork* and intialize it from the constructor like the OrderReadModel. 
-
+        private readonly OrderReadModel _orderReadModel;
         private readonly UnitOfWork _unitOfWork;
 
         public OrderService(OrderReadModel orderReadModel, UnitOfWork unitOfWork)
@@ -365,29 +379,48 @@ First add a private field to hold a reference to the *UnitOfWork* and intialize 
             _unitOfWork = unitOfWork;
         }
 
-Now we need to add a method to create the new order for the customer along with the products they have ordered. We will use a command object to carry the information we need from the client to create the order. So lets add a *Commands* folder in ther *Services* project and within it create a *CreateNewOrderForCustomerWithProductsCommand* command. We actually don't need much data from the client, all we need is the *CustomerId* and a dictionary containing the product IDs and their quantities.
+Now we need to add a new method to the service to create the new order for the customer along with the products they have ordered. We will use a command object to carry the information we need from the client to create the order. So lets add a *Commands* folder in ther *Services* project and within it create a *CreateNewOrderForCustomerWithProductsCommand* command. We actually don't need much data from the client, all we need is the *OrderId*, the *CustomerId*, the customer's order number, and a list  containing the product IDs for the products on order. (In a real world scenario we'd probably want to hold the quantities of the product as well, but if I am honest, I simply forgot!)
 
     public class CreateNewOrderForCustomerWithProductsCommand
     {
+        public Guid OrderId { get; set; }
         public Guid CustomerId { get; set; }
-        public Dictionary<int, int> ProductQuantities { get; set; }
+        public List<int> ProductsOnOrder { get; set; }
+        public string CustomerOrderNumber { get; set; }
     }
 
-Now we can create the service method using the command as the Parameter.
+Now we have a command to carry out order information, we can create the service method to create the order passing the command as the Parameter. The method will have a few guard clauses to try and ensure we cannot pass a command with an invalid state to the method. We then use the list of product Ids to get a list of products from the database. We check if we got less products back than the ids passed in and throw an exception if we do.
 
+Providing we got an equal quantity of products back we will use the order factory to create a list of *ProductOnOrder* items. We will then pass this along with the Order Id, Customer Id and Customer Order Number to the OrderFactory to create an new *Order*. This will be added to the *OrderRepository* via the *UnitOfWork* and then we will complete the transaction.
+
+        /// <exception cref="System.ArgumentNullException">command</exception>
+        /// <exception cref="System.ArgumentException">
+        /// command.CustomerId
+        /// or
+        /// command.ProductsOnOrder
+        /// </exception>
         public void CreateNewOrderForCustomerWithProducts(CreateNewOrderForCustomerWithProductsCommand command)
         {
+            if (command == null) throw new ArgumentNullException("command");
+            if (command.OrderId == Guid.Empty) throw new ArgumentOutOfRangeException("command.OrderId", "OrderId must not be empty");
+            if (command.CustomerId == Guid.Empty) throw new ArgumentOutOfRangeException("command.CustomerId", "CustomerId must not be empty");
+            if (command.ProductsOnOrder == null) throw new ArgumentException("command.ProductsOnOrder");
+            if (command.ProductsOnOrder.Count == 0) throw new ArgumentOutOfRangeException("command.ProductsOnOrder", "ProductsOnOrder must not be empty");
+
+            var productsOrdered = _unitOfWork.Products.GetProductsForIds(command.ProductsOnOrder).ToList();
+            var productCountShortfall = command.ProductsOnOrder.Count - productsOrdered.Count;
+            if (productCountShortfall > 0) throw new InvalidOperationException(productCountShortfall + " products on order not found! ");
+
+            var productsOnOrder = OrderFactory.CreateProductsOnOrder(command.OrderId, productsOrdered);
+            var order = OrderFactory.CreateOrderFrom(command.OrderId, command.CustomerId, command.CustomerOrderNumber, productsOnOrder);
+
+            _unitOfWork.Orders.Add(order);
+            _unitOfWork.Complete();
         }
 
+While we are in the service we wil provide a metthod for generating new valid OrderIds. In our case we wil just let the *OrderFactory* create a new *Guid*, but we may have had to go to the database to get the next sequential Guid, or the next available *Long Integer* using a *High-Low* strategy. 
 
-dont forget to alter and add in Tthe UnitOfWork and DefaultCommandContext...
-        public static OrderService DefaultOrderService
-        {
-            get
-            {
-                return new OrderService(DefaultOrderReadModel, DefaultUnitOfWork);
-            }
-        }
+In Part 4 we move to the client, (well our Integration Tests!) and 
 
-
-In the client (Integration Tests) renamed *ReadModelTests* to be *OrderServiceTests*
+[Part 1]() Setting up the data
+[Part 2]() Querying the database using the QueryStack

@@ -68,6 +68,14 @@
       <Project>{cc298555-1458-4a82-b22a-58e43175345d}</Project>
       <Name>Blogs.EfAndSprocfForCqrs.Services</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\03.QueryStack\Blogs.EfAndSprocfForCqrs.ReadModel\Blogs.EfAndSprocfForCqrs.ReadModel.csproj">
+      <Project>{e83647df-6685-4bac-afec-a0cfebffd59e}</Project>
+      <Name>Blogs.EfAndSprocfForCqrs.ReadModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\04.CommandStack\Blogs.EfAndSprocfForCqrs.DomainModel\Blogs.EfAndSprocfForCqrs.DomainModel.csproj">
+      <Project>{4b9b0577-355b-49fb-a4a3-afda52d170ee}</Project>
+      <Name>Blogs.EfAndSprocfForCqrs.DomainModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Blogs.EfAndSprocfForCqrs.Dependencies\Blogs.EfAndSprocfForCqrs.Dependencies.csproj">
       <Project>{ca662d96-700b-4a58-960d-f243784eca7b}</Project>
       <Name>Blogs.EfAndSprocfForCqrs.Dependencies</Name>

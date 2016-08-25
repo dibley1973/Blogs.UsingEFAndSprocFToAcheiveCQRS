@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Transactions;
+using Blogs.EfAndSprocfForCqrs.Dependencies;
+using Blogs.EfAndSprocfForCqrs.Services;
 
 namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
 {
@@ -13,11 +15,39 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
     public class OrderServiceTests
     {
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InstantiateService_WhenGivenNullReadModel_ThrowsException()
+        {
+            // ARRANGE
+
+            // ACT
+            // ReSharper disable once ObjectCreationAsStatement
+            new OrderService(null, Defaults.DefaultUnitOfWork);
+
+            // ASSERT
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InstantiateService_WhenGivenNullUnitOfWork_ThrowsException()
+        {
+            // ARRANGE
+
+            // ACT
+            // ReSharper disable once ObjectCreationAsStatement
+            new OrderService(Defaults.DefaultOrderReadModel, null);
+
+            // ASSERT
+
+        }
+
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GetOrderForId_ThrowsException_WhenGivenInvalidId()
         {
             // ARRANGE
-            var orderService = Dependencies.Defaults.DefaultOrderService;
+            var orderService = Defaults.DefaultOrderService;
             var invalidId = new Guid("0bab4fc6-d749-455c-afee-73cfb0a01d08");
 
             // ACT
@@ -28,7 +58,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         public void GetOrderForId_ReturnsOrderDetails_WhenGivenAValidId()
         {
             // ARRANGE
-            var orderService = Dependencies.Defaults.DefaultOrderService;
+            var orderService = Defaults.DefaultOrderService;
             var invalidId = new Guid("4a61a22a-bade-d780-bbfa-be19c7746d87");
 
             // ACT
@@ -54,7 +84,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         public void CreateNewOrderForCustomerWithProducts_WhenGivenNullCommand_ThrowsException()
         {
             // ARRANGE
-            var orderService = Dependencies.Defaults.DefaultOrderService;
+            var orderService = Defaults.DefaultOrderService;
 
             // ACT
             orderService.CreateNewOrderForCustomerWithProducts(null);
@@ -63,19 +93,21 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void CreateNewOrderForCustomerWithProducts_WhenGivenCommandWithEmptyCustomerId_ThrowsException()
         {
             // ARRANGE
             var productsOnOrder = new List<int> { 8, 9 };
             const string customerOrderNumber = "00123";
+            var orderService = Defaults.DefaultOrderService;
+            var orderId = orderService.GenerateNewOrderId();
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
+                OrderId = orderId,
                 CustomerId = Guid.Empty,
                 ProductsOnOrder = productsOnOrder,
                 CustomerOrderNumber = customerOrderNumber
             };
-            var orderService = Dependencies.Defaults.DefaultOrderService;
 
             // ACT
             orderService.CreateNewOrderForCustomerWithProducts(command);
@@ -84,7 +116,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void CreateNewOrderForCustomerWithProducts_WhenGivenCommandWithEmptyOrderId_ThrowsException()
         {
             // ARRANGE
@@ -97,7 +129,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
                 ProductsOnOrder = null,
                 CustomerOrderNumber = customerOrderNumber
             };
-            var orderService = Dependencies.Defaults.DefaultOrderService;
+            var orderService = Defaults.DefaultOrderService;
 
             // ACT
             orderService.CreateNewOrderForCustomerWithProducts(command);
@@ -111,14 +143,39 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         {
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
+            var orderService = Defaults.DefaultOrderService;
+            var orderId = orderService.GenerateNewOrderId();
             const string customerOrderNumber = "00123";
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
+                OrderId = orderId,
                 CustomerId = customerId,
                 ProductsOnOrder = null,
                 CustomerOrderNumber = customerOrderNumber
             };
-            var orderService = Dependencies.Defaults.DefaultOrderService;
+
+            // ACT
+            orderService.CreateNewOrderForCustomerWithProducts(command);
+
+            // ASSERT
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void CreateNewOrderForCustomerWithProducts_WhenGivenCommandWithEmptyProductsOnOrder_ThrowsException()
+        {
+            // ARRANGE
+            var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
+            var orderService = Defaults.DefaultOrderService;
+            var orderId = orderService.GenerateNewOrderId();
+            const string customerOrderNumber = "00123";
+            var command = new CreateNewOrderForCustomerWithProductsCommand
+            {
+                OrderId = orderId,
+                CustomerId = customerId,
+                ProductsOnOrder = new List<int>(),
+                CustomerOrderNumber = customerOrderNumber
+            };
 
             // ACT
             orderService.CreateNewOrderForCustomerWithProducts(command);
@@ -128,14 +185,14 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void CreateNewOrderForCustomerWithProducts_WhenGivenInvalidProducts_ThrowsException()
+        public void CreateNewOrderForCustomerWithProducts_WhenGivenCommandWithInvalidProducts_ThrowsException()
         {
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
             var productsOnOrder = new List<int> { 88, 99 };
             const string customerOrderNumber = "00123";
-            var orderService = Dependencies.Defaults.DefaultOrderService;
-            var orderId = orderService.CreateOrderId();
+            var orderService = Defaults.DefaultOrderService;
+            var orderId = orderService.GenerateNewOrderId();
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
                 OrderId = orderId,
@@ -155,8 +212,8 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");
             var productsOnOrder = new List<int> { 8, 9 };
             const string customerOrderNumber = "00123";
-            var orderService = Dependencies.Defaults.DefaultOrderService;
-            var orderId = orderService.CreateOrderId();
+            var orderService = Defaults.DefaultOrderService;
+            var orderId = orderService.GenerateNewOrderId();
             var command = new CreateNewOrderForCustomerWithProductsCommand
             {
                 OrderId = orderId,
@@ -167,7 +224,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
             OrderDetailsModel actual;
 
             // ACT
-            using (var transaction = new TransactionScope()) // This may not actually work??
+            using (var transaction = new TransactionScope())
             {
                 orderService.CreateNewOrderForCustomerWithProducts(command);
 

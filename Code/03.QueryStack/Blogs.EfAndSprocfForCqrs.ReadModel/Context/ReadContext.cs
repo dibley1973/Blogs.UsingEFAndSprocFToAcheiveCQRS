@@ -27,12 +27,12 @@ namespace Blogs.EfAndSprocfForCqrs.ReadModel.Context
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         ~ReadContext()
         {
             Dispose(false);
-            GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool disposing)
@@ -40,7 +40,6 @@ namespace Blogs.EfAndSprocfForCqrs.ReadModel.Context
             if (_disposed) return;
 
             if (disposing) CloseAndDisposeConnection();
-            
 
             _disposed = true;
         }
