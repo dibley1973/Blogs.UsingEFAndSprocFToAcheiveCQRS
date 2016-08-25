@@ -1,4 +1,4 @@
-# Using Entity Framework and the Store Procedure Framework To Achieve CQRS - Part #3
+# Using Entity Framework and the Store Procedure Framework To Achieve CQRS - Part #4
 
 This article follows on from [Part 3]() where we built the *CommandStack* leveraging *EntityFramework* and prepared to persist an order and some of its associated data to the database. In this article we will shift our focus to the the client, (well our Integration Tests!) and create a test that creates an order, persists it using the *CommandStack* and reads it back out with the *QueryStack*. 
 
@@ -42,7 +42,7 @@ Since part 2 I have renamed *ReadModelTests* to be *OrderServiceTests* as that n
         }
     }
 
-I'm not going to go into each of the tests I have written (however they are all in the source code on [GitHub](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS)). We will only focus on one test that will show off our *Command Stack*. We wil create an command for the new order for an existing customer, and two of the products in the database. We will use the service to generated a new order Id and then create the *CreateNewOrderForCustomerWithProductsCommand*. (IDEA: This command maybe better named as `CreateNewOrderWithProductsForCustomerCommand`?). Once the command is created we will use a new `TransactionScope` so we can roll back the transaction and leave the database in the state we found it after each run of the test. Once inside the transaction we will use the OrderService to create the order. We will then use the OrderReadModel (from the second post in this series) to read the new order details back out so we may check all of the order details are correct once we have rolled back the transaction.
+I'm not going to go into each of the tests I have written (however they are all in the source code on [GitHub](https://github.com/dibley1973/Blogs.UsingEFAndSprocFToAcheiveCQRS)). We will only focus on one test that will show off our *Command Stack*. We will create an command for the new order for an existing customer, and two of the products in the database. We will use the service to generated a new order Id and then create the *CreateNewOrderForCustomerWithProductsCommand*. (IDEA: This command maybe better named as `CreateNewOrderWithProductsForCustomerCommand`?). Once the command is created we will use a new `TransactionScope` so we can roll back the transaction and leave the database in the state we found it after each run of the test. Once inside the transaction we will use the OrderService to create the order. We will then use the OrderReadModel (from the second post in this series) to read the new order details back out so we may check all of the order details are correct once we have rolled back the transaction.
 
         [TestMethod]
         public void CreateNewOrderForCustomerWithProducts_WhenGivenValidProducts_CreatesAnOrder()
@@ -88,9 +88,13 @@ I'm not going to go into each of the tests I have written (however they are all 
 
 ## Summary
 
-So there we have it. A small solution showing how you can leverage the *StoredProcedureFramework* and *EntityFramework* to acheive CQRS in a .Net application. All of the code is available in [this GitHub]() reporsitory.
+So there we have it. A small solution showing how you can leverage the *StoredProcedureFramework* and *EntityFramework* to achieve CQRS in a .Net application. All of the code is available in [this GitHub]() repository.
 
 
 [Part 1]() Setting up the data
 [Part 2]() Querying the database using the QueryStack
-[Part 3]() Writing to the datbasea using the CommandStack
+[Part 3]() Writing to the database using the CommandStack
+
+### Disclaimer
+
+I am the author of the Stored Procedure Framework.
