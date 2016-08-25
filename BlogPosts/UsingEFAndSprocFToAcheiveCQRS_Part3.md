@@ -1,17 +1,17 @@
 # Using Entity Framework and the Store Procedure Framework To Achieve CQRS - Part #3
 This article follows on from [Part 2]() where we built the *QueryStack* and queried an order and some of its associated data, in this article we will shift our focus to the *Command Stack* and we will leverage *EntityFramework* to do add a new order to the database.
 
-Before we can get started we have to make a small amendment to the *dbo.Product* table structure. I had omitted the *Price* column. 
+Before we can get started we have to make a small amendment to the *dbo.Product* table structure. I had ommited the *Price* column. 
 
-CREATE TABLE [dbo].[Product] (
-    [Id]               INT            IDENTITY (1, 1) NOT NULL,
-    [Key]              NVARCHAR (128) NOT NULL,
-    [Name]             NVARCHAR (255) NOT NULL,
-    [Description]      NVARCHAR (MAX) NOT NULL,
-    [CreatedTimestamp] DATETIME       NOT NULL,
-    [Price] MONEY NOT NULL, 
-    CONSTRAINT [PK_Product] PRIMARY KEY CLUSTERED ([Id] ASC)
-);
+    CREATE TABLE [dbo].[Product] (
+        [Id]               INT            IDENTITY (1, 1) NOT NULL,
+        [Key]              NVARCHAR (128) NOT NULL,
+        [Name]             NVARCHAR (255) NOT NULL,
+        [Description]      NVARCHAR (MAX) NOT NULL,
+        [CreatedTimestamp] DATETIME       NOT NULL,
+        [Price] MONEY NOT NULL, 
+        CONSTRAINT [PK_Product] PRIMARY KEY CLUSTERED ([Id] ASC)
+    );
 
 We will also need to re-seed this table too with the price data added.
 
@@ -25,9 +25,9 @@ INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimesta
 INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp], [Price]) 
 	VALUES (8, N'usmash-4lb-hammer', N'U-Smash 4lb lump hammer', N'U-Smash 4lb lump hammer', N'2015-11-25 16:00:35', 14.99)
 INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp], [Price]) 
-	VALUES (9, N'pry-master-prybar', N'Pri-Master 24" Pry-Bar', N'Pri-Master 24" Pry-Bar with plastic ergonomic handle', N'2015-11-26 17:00:02', 29.99)
+	VALUES (9, N'pry-master-prybar', N'Pri-Master 24" Pry-Bar', N'Pri-Master 24" Pry-Bar with plastic ergonmoic handle', N'2015-11-26 17:00:02', 29.99)
 INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp], [Price]) 
-	VALUES (10, N'snap-on-6-inch-slip-pliers', N'Snap-On 6 Inch Slip Pliers', N'Snap-On 6 Inch Slip Pliers, ideal for removing brake spring clips', N'2015-12-02 09:33:22', 45.99)
+	VALUES (10, N'snap-on-6-inch-slip-plyers', N'Snap-On 6 Inch Slip Plyers', N'Snap-On 6 Inch Slip Plyers, ideal for removing brake spring clips', N'2015-12-02 09:33:22', 45.99)
 SET IDENTITY_INSERT [dbo].[Product] OFF
 
 So now that is out of the way we can move on to the "Blogs.EfAndSprocfForCqrs.DomainModel" project, as we intend to use the *Entity Framework* for data access in the *CommandStack* lets use *NuGet* to add the *Entity Framework* library to this project. You can use the *Package Manager* in *Visual Studio* or the console. I prefer to use the GUI in Visual studio but if you prefer to use the console then the command line is  below.
@@ -181,7 +181,7 @@ The *Product* entity is straight forward.
         public decimal Price { get; set; }
     }
 
-As is the *ProductOnOrder* entity, although this does have a navigation property which is a reference to the parent *Order* object.
+As is the *ProductOnOrder* entity, although this does have anavigation property which is a reference to the parent *Order* object.
 
     public class ProductOnOrder
     {
@@ -193,7 +193,7 @@ As is the *ProductOnOrder* entity, although this does have a navigation property
         public virtual Order Order { get; set; }
     }
 
-Now we need to quickly flip back into the *Configuration* folder inside the *Context* folder to add in all of the *EntityTypeConfiguration* classes. The *CustomerConfiguration* just defines the primary key.
+Now we need to quickly flip back into the *Configuration* folder insode the *Context* folder to add in all of the *EntityTypeConfiguration* classes. The *CustomerConfiguration* just defines the primary key.
 
     public class CustomerConfiguration : EntityTypeConfiguration<Customer>
     {
@@ -240,7 +240,7 @@ And lastly the *ProductOnOrderConfiguration* has the primary key and the one to 
         }
     }
 
-Lets now move to the *Factories* folder and add an *OrderFactory* class whose purpose will be to construct an order for us. When we create a new order we will need a unique identifier for it. For simplicity in this article I have chosen to use Guids so we will need a method in the factory that will return a new *Guid*. I know that using non-sequential Guids in a large database table can cause a performance concern so some people tend to shy away from them. Some people may prefer to use a *Long Integer* with a *high-low* strategy for generation, but for a web application where the Order ID may be passed in a query string or as a route parameter a non-guessable ID seems a more preferable idea for customer and order identifiers to me. So for the purpose of this article, Guids it is! 
+Lets now move to the *Factories* folder and add an *OrderFactory* class whose purpose will be to construct an order for us. When we create a new order we will need a unique identifier for it. For simplicity in this article I have chosen to use Guids so we will need a method in the factory that will return a new *Guid*. I know that using non-sequenctial Guids in a large database table can cause a performance concern so some people tend to shy away from them. Some people may prefer to use a *Long Integer* with a *high-low* stratgey for generation, but for a web application where the Order ID may be passed in a query string or as a route parameter a non-guessable ID seems a more preferable idea for customer and order identifiers to me. So for the purpose of this article, Guids it is! 
 
     public static class OrderFactory
     {
@@ -295,7 +295,7 @@ The last method in the factory creates an actual *Order* object it self, using a
 
 Ideally I should create a suite of unit tests for the functions in the *OrderFactory*, but it is not the scope of this article to go into the pros and cons of unit testing. 
 
-Next up we need to focus on the repositories, so lets open the *Repositories* folder and lets start by creating a repository for the Order, the *OrderRepository*. The repository for the orders is relatively simple and straight forward. We could have methods like `Order Get(Guid id)` or `IEnumerable<Order> GetAllForCustomer(Guid customerId)` within the repository but for the purposes of this article we just need an `void Add(Order order)` method. The repository must first of all be constructed with our *CommandContext*.
+Next up we need to focus on the repositories, so lets open the *Repositories* folder and lets start by creating a repository for the Order, the *OrderRepository*. The repository for the orders is relatively simple and straight forward. We could have methods like `Order Get(Guid id)` or `IEnumerable<Order> GetAllForCustomer(Guid customerId)` within the repository but for th epurposes of this article we just need an `void Add(Order order)` method. The repository must first of all be constructed with our *CommandContext*.
 
     public class OrderRepository
     {
@@ -316,7 +316,7 @@ Next up we need to focus on the repositories, so lets open the *Repositories* fo
         }
     }
 
-We will also need a repository for the products as when we create an order we need some additional product information, for example the price at the time of ordering. So the *ProductRepository* will have a single method `IEnumerable<Product> GetProductsForIds(List<int> idList)` and like the order repository it will be constructed with our *CommandContext*.
+We will also need a repository for the products as when we create an order we need some additional product information, for eaxample the price at the time of ordering. So the *ProductRepository* will have a single method `IEnumerable<Product> GetProductsForIds(List<int> idList)` and like the order repository it will be constructed with our *CommandContext*.
 
     public class ProductRepository
     {
@@ -365,7 +365,7 @@ As well as the properties to expose the repositories there is a single method `C
             _context.SaveChanges();
         }
 
-Now the *UnitOfWork* is complete, we can focus on the *Blogs.EfAndSprocfForCqrs.Services* project and open the *OrderService* and use what we have created so far in this post to add a new order to the database. First we will add another private field to the service and this will hold a reference to the *UnitOfWork*. we will initialize it from the constructor just like we do with the OrderReadModel. we will pass the *UnitOfWork* into the service as we may want many services to perform actions all in one atomic transaction. for this reason we will not dispose of the *UnitOfWork* when the service dies, we will let the constructing code handle disposing of the *UnitOfWork* for us.
+Now the *UnitOfWork* is complete, we can focus on the *Blogs.EfAndSprocfForCqrs.Services* project and open the *OrderService* and use what we have created so far in this post to add a new order to the database. First we will add another private field to the service and this will hold a reference to the *UnitOfWork*. we will intialize it from the constructor just like we do with the OrderReadModel. we will pass the *UnitOfWork* into the service as we may want many services to perform actions all in one atomic transaction. for this reason we will not dispose of the *UnitOfWork* when the service dies, we will let the constructing code handle disposing of the *UnitOfWork* for us.
 
         private readonly OrderReadModel _orderReadModel;
         private readonly UnitOfWork _unitOfWork;
@@ -379,7 +379,7 @@ Now the *UnitOfWork* is complete, we can focus on the *Blogs.EfAndSprocfForCqrs.
             _unitOfWork = unitOfWork;
         }
 
-Now we need to add a new method to the service to create the new order for the customer along with the products they have ordered. We will use a command object to carry the information we need from the client to create the order. So lets add a *Commands* folder in the *Services* project and within it create a *CreateNewOrderForCustomerWithProductsCommand* command. We actually don't need much data from the client, all we need is the *OrderId*, the *CustomerId*, the customer's order number, and a list  containing the product IDs for the products on order. (In a real world scenario we'd probably want to hold the quantities of the product as well, but if I am honest, I simply forgot!)
+Now we need to add a new method to the service to create the new order for the customer along with the products they have ordered. We will use a command object to carry the information we need from the client to create the order. So lets add a *Commands* folder in ther *Services* project and within it create a *CreateNewOrderForCustomerWithProductsCommand* command. We actually don't need much data from the client, all we need is the *OrderId*, the *CustomerId*, the customer's order number, and a list  containing the product IDs for the products on order. (In a real world scenario we'd probably want to hold the quantities of the product as well, but if I am honest, I simply forgot!)
 
     public class CreateNewOrderForCustomerWithProductsCommand
     {
@@ -418,7 +418,7 @@ Providing we got an equal quantity of products back we will use the order factor
             _unitOfWork.Complete();
         }
 
-While we are in the service we will provide a method for generating new valid OrderIds. In our case we will just let the *OrderFactory* create a new *Guid*, but we may have had to go to the database to get the next sequential Guid, or the next available *Long Integer* using a *High-Low* strategy. 
+While we are in the service we wil provide a metthod for generating new valid OrderIds. In our case we wil just let the *OrderFactory* create a new *Guid*, but we may have had to go to the database to get the next sequential Guid, or the next available *Long Integer* using a *High-Low* strategy. 
 
 In Part 4 we move to the client, (well our Integration Tests!) and 
 
