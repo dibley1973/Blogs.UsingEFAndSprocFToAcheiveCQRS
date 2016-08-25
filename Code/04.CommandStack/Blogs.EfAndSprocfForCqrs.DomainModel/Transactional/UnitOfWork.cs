@@ -9,11 +9,21 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Transactional
         private bool _disposed;
         private readonly CommandContext _context;
 
-        public UnitOfWork(CommandContext context)
-        {
-            if (context == null) throw new ArgumentNullException("context");
+        //public UnitOfWork(CommandContext context)
+        //{
+        //    if (context == null) throw new ArgumentNullException("context");
 
-            _context = context;
+        //    _context = context;
+
+        //    Orders = new OrderRepository(_context);
+        //    Products = new ProductRepository(_context);
+        //}
+
+        public UnitOfWork(string nameOrConnectionString)
+        {
+            if (string.IsNullOrWhiteSpace(nameOrConnectionString)) throw new ArgumentNullException("nameOrConnectionString");
+
+            _context = new CommandContext(nameOrConnectionString);
 
             Orders = new OrderRepository(_context);
             Products = new ProductRepository(_context);

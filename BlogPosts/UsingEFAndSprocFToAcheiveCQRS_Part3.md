@@ -13,7 +13,7 @@ CREATE TABLE [dbo].[Product] (
     CONSTRAINT [PK_Product] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-We will also need to ressed this table too.
+We will also need to re-seed this table too with the price data added.
 
 SET IDENTITY_INSERT [dbo].[Product] ON
 INSERT INTO [dbo].[Product] ([Id], [Key], [Name], [Description], [CreatedTimestamp], [Price]) 
@@ -139,7 +139,7 @@ The next step is to head over to the *Entities* folder and create the actual ent
         }
     }
 
-Now to create the *Order* Entity. This entity also has some basic properties. It also has a *ReadOnlyCollection* of products which are on the order. It is backed by a private list which can only be added to with the *AddProductsToOrder* method.
+Now to create the *Order* Entity. This entity also has some basic properties. It also has a *ReadOnlyCollection* of products which are on the order. It is backed by a private list which can only be added to with the *AddProductsToOrder* method. We also have a property of type *Customer* which is the owner of the order and our navigation property, and along side this (for convenience) we will also hold the Customer Id as a foreign key property. IF this seems a bit awkward / or an overkill see great Pluralsight course on using EntityFramework by *Julie Lerman*. In the course she highlights why having the foreign key makes your life easier even if it does "muddy" your entity model a little. [This link](https://msdn.microsoft.com/en-gb/data/hh134698.aspx) also mentiones the benefits. Anyway, its down to personal preference, I put them in, you can choose not to.
 
     public class Order
     {
@@ -169,14 +169,7 @@ Now to create the *Order* Entity. This entity also has some basic properties. It
         }
     }
 
-
-
-
-
-
-
-
-Create *Product* entity
+The *Product* entity is straight forward.
 
     public class Product
     {
@@ -188,23 +181,123 @@ Create *Product* entity
         public decimal Price { get; set; }
     }
 
-Create *ProductOrdered* entity
+As is the *ProductOnOrder* entity, although this does have anavigation property which is a reference to the parent *Order* object.
 
-    internal class ProductOrdered
+    public class ProductOnOrder
     {
         public int Id { get; set; }
-        public int OrderId { get; set; }
+        public Guid OrderId { get; set; }
         public int ProductId { get; set; }
         public decimal PurchasePrice { get; set; }
+
+        public virtual Order Order { get; set; }
     }
 
+Now we need to quickly flip back into the *Configuration* folder insode the *Context* folder to add in all of the *EntityTypeConfiguration* classes. The *CustomerConfiguration* just defines the primary key.
+
+    public class CustomerConfiguration : EntityTypeConfiguration<Customer>
+    {
+        public CustomerConfiguration()
+        {
+            HasKey(customer => customer.Id);
+        }
+    }
+
+The *OrderConfiguration* defines the primary key and also the one to many Customer to Order relationship using the fluent API.
+
+    public class OrderConfiguration : EntityTypeConfiguration<Order>
+    {
+        public OrderConfiguration()
+        {
+            HasKey(order => order.Id);
+            HasRequired(order => order.OrderOwner)
+                .WithMany(customer => customer.Orders)
+                .HasForeignKey(order => order.CustomerId);
+        }
+    }
+
+The *ProductConfiguration* is simple again with just the primary key defined.
+
+    public class ProductConfiguration : EntityTypeConfiguration<Product>
+    {
+        public ProductConfiguration()
+        {
+            HasKey(product => product.Id);
+        }
+    }
+
+And lastly the *ProductOnOrderConfiguration* has the primary key and the one to many relationship for the Order to the products on the order. 
+
+    public class ProductOnOrderConfiguration : EntityTypeConfiguration<ProductOnOrder>
+    {
+        public ProductOnOrderConfiguration()
+        {
+            ToTable("ProductOrdered");
+            HasKey(productOnOrder => productOnOrder.Id);
+            HasRequired(productOnOrder => productOnOrder.Order)
+                .WithMany(order => order.ProductsOnOrder)
+                .HasForeignKey(productOnOrder => productOnOrder.OrderId);
+        }
+    }
+
+Lets now move to the *Factories* folder and add an *OrderFactory* class whose purpose will be to construct an order for us. When we create a new order we will need a unique identifier for it. For simplicity in this article I have chosen to use Guids so we will need a method in the factory that will return a new *Guid*. I know that using non-sequenctial Guids in a large database table can cause a performance concern so some people tend to shy away from them. Some people may prefer to use a *Long Integer* with a *high-low* stratgey for generation, but for a web application where the Order ID may be passed in a query string or as a route parameter a non-guessable ID seems a more preferable idea for customer and order identifiers to me. So for the purpose of this article, Guids it is! 
+
+    public static class OrderFactory
+    {
+        public static Guid CreateNewOrderId()
+        {
+            return Guid.NewGuid();
+        }
 
 
+We also need a way of building a list of *ProductOnOrder* which the order will carry for the order from a list of *Product* objects which the customer selected. The method basically iterates through the list of products creating new *ProductOnOrder* objects with them and the specified order id. 
 
-    
-So lets start by creating a repository for the Order, the *OrderRepository* .
+public static List<ProductOnOrder> CreateProductsOnOrder(Guid orderId, List<Product> productsOnOrder)
+        {
+            if (productsOnOrder == null) throw new ArgumentNullException("productsOnOrder");
 
-    internal class OrderRepository
+            var result = new List<ProductOnOrder>();
+            if (!productsOnOrder.Any()) return result;
+
+            foreach (var product in productsOnOrder)
+            {
+                var productOnOrder = new ProductOnOrder
+                {
+                    ProductId = product.Id,
+                    OrderId = orderId,
+                    PurchasePrice = product.Price
+                };
+                result.Add(productOnOrder);
+            }
+
+            return result;
+        }
+
+The last method in the factory creates an actual *Order* object it self, using an order id, customer id, a customer order number if supplied and of course a list of products to add ot the order.
+
+        public static Order CreateOrderFrom(Guid orderId, Guid customerId, string customerOrderNo, List<ProductOnOrder> productsOnOrder)
+        {
+            if (orderId == Guid.Empty) throw new ArgumentOutOfRangeException("orderId", "Order Id must not be empty");
+            if (customerId == Guid.Empty) throw new ArgumentOutOfRangeException("customerId", "Customer Id must not be empty");
+            if (productsOnOrder == null) throw new ArgumentNullException("productsOnOrder");
+            if (!productsOnOrder.Any()) throw new ArgumentOutOfRangeException("productsOnOrder", "An order must have products on it. ");
+
+            var order = new Order
+            {
+                Id = orderId,
+                CustomerId = customerId,
+                CustomerOrderNumber = customerOrderNo,
+                CreatedOnTimeStamp = DateTime.Now
+            };
+            order.AddProductsToOrder(productsOnOrder);
+            return order;
+        }
+
+Ideally I should create a suite of unit tests for the functions in the *OrderFactory*, but it is not the scope of this article to go into the pros and cons of unit testing. 
+
+Next up we need to focus on the repositories, so lets open the *Repositories* folder and lets start by creating a repository for the Order, the *OrderRepository*. The repository for the orders is relatively simple and straight forward. We could have methods like `Order Get(Guid id)` or `IEnumerable<Order> GetAllForCustomer(Guid customerId)` within the repository but for th epurposes of this article we just need an `void Add(Order order)` method. The repository must first of all be constructed with our *CommandContext*.
+
+    public class OrderRepository
     {
         private readonly CommandContext _context;
 
@@ -217,25 +310,44 @@ So lets start by creating a repository for the Order, the *OrderRepository* .
 
         public void Add(Order order)
         {
+            if (order == null) throw new ArgumentNullException("order");
+
             _context.Set<Order>().Add(order);
-        }
-
-        public Order Get(Guid id)
-        {
-            return _context.Set<Order>().Find(id);
-        }
-
-        public IEnumerable<Order> GetAll()
-        {
-            return _context.Set<Order>().ToList();
         }
     }
 
+We will also need a repository for the products as when we create an order we need some additional product information, for eaxample the price at the time of ordering. So the *ProductRepository* will have a single method `IEnumerable<Product> GetProductsForIds(List<int> idList)` and like the order repository it will be constructed with our *CommandContext*.
+
+    public class ProductRepository
+    {
+        private readonly CommandContext _context;
+
+        public ProductRepository(CommandContext context)
+        {
+            if (context == null) throw new ArgumentNullException("context");
+
+            _context = context;
+        }
+
+        public IEnumerable<Product> GetProductsForIds(List<int> idList)
+        {
+            return _context.Set<Product>()
+                .Where(product => idList.Contains(product.Id));
+        }
+    }
+
+As we will be updating two tables in the database when we create an order, one to hodl the order and one to hold the products on the order we need to ensure that our updating is carried out in a single atomic action. For this we will use the UnitOfWork pattern. So lets move to the *Transactional* folder and create our *UnitOfWork*. As the unit of work will hold it's own instance of teh CommandContext and will need to ensure it disposes of this correctly it will need to implement the *IDisposable* interface.
+
+    public class UnitOfWork : IDisposable
+    {
+        private bool _disposed;
+        private readonly CommandContext _context;
 
 
 
 
-Now we can look at creating a unit of work.
+
+
 
 
 Lets now focus on the *Blogs.EfAndSprocfForCqrs.Services* project and open the *OrderService* tackle how we use what we have created so far in this post to add a new order to the database.

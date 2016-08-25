@@ -60,7 +60,7 @@ namespace Blogs.EfAndSprocfForCqrs.Services
 
         public Guid CreateOrderId()
         {
-            return Guid.NewGuid();
+            return OrderFactory.CreateNewOrderId();
         }
     }
 }

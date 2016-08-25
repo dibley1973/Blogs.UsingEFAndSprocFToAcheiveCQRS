@@ -8,6 +8,11 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Factories
 {
     public static class OrderFactory
     {
+        public static Guid CreateNewOrderId()
+        {
+            return Guid.NewGuid();
+        }
+
         public static List<ProductOnOrder> CreateProductsOnOrder(Guid orderId, List<Product> productsOnOrder)
         {
             if (productsOnOrder == null) throw new ArgumentNullException("productsOnOrder");
@@ -29,18 +34,20 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Factories
             return result;
         }
 
-        public static Guid CreateNewOrderId()
-        {
-            return new Guid();
-        }
-
         public static Order CreateOrderFrom(Guid orderId, Guid customerId, string customerOrderNo, List<ProductOnOrder> productsOnOrder)
         {
-            var order = new Order();
-            order.Id = orderId;
-            order.CustomerId = customerId;
-            order.CustomerOrderNumber = customerOrderNo;
-            order.CreatedOnTimeStamp = DateTime.Now;
+            if (orderId == Guid.Empty) throw new ArgumentOutOfRangeException("orderId", "Order Id must not be empty");
+            if (customerId == Guid.Empty) throw new ArgumentOutOfRangeException("customerId", "Customer Id must not be empty");
+            if (productsOnOrder == null) throw new ArgumentNullException("productsOnOrder");
+            if (!productsOnOrder.Any()) throw new ArgumentOutOfRangeException("productsOnOrder", "An order must have products on it. ");
+
+            var order = new Order
+            {
+                Id = orderId,
+                CustomerId = customerId,
+                CustomerOrderNumber = customerOrderNo,
+                CreatedOnTimeStamp = DateTime.Now
+            };
             order.AddProductsToOrder(productsOnOrder);
             return order;
         }

@@ -149,7 +149,7 @@ namespace Blogs.EfAndSprocfForCqrs.IntegrationTests
         }
 
         [TestMethod]
-        public void CreateNewOrderForCustomerWithProducts_WhenGivenValidProducts_THEN()
+        public void CreateNewOrderForCustomerWithProducts_WhenGivenValidProducts_CreatesAnOrder()
         {
             // ARRANGE
             var customerId = new Guid("17e3a22e-07e5-4ab2-8e62-1b15f9916909");

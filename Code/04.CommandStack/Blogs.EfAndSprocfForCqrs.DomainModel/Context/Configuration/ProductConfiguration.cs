@@ -8,9 +8,6 @@ namespace Blogs.EfAndSprocfForCqrs.DomainModel.Context.Configuration
         public ProductConfiguration()
         {
             HasKey(product => product.Id);
-            //HasRequired(c => c.Blog)
-            //    .WithMany(s => s.Posts)
-            //    .HasForeignKey(c => c.BlogId);
         }
     }
 }

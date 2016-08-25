@@ -38,16 +38,17 @@ namespace Blogs.EfAndSprocfForCqrs.Dependencies
         {
             get
             {
-                return new UnitOfWork(DefaultCommandContext);
+                return new UnitOfWork(DefaultConnectionString);
+                //return new UnitOfWork(DefaultCommandContext);
             }
         }
 
-        private static CommandContext DefaultCommandContext
-        {
-            get
-            {
-                return new CommandContext(DefaultConnectionString);
-            }
-        }
+        //private static CommandContext DefaultCommandContext
+        //{
+        //    get
+        //    {
+        //        return new CommandContext(DefaultConnectionString);
+        //    }
+        //}
     }
 }
